@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>花板 - 祭礼寄付者名簿</title>
+    <title>令和七年度 並松町若頭 御花御芳名</title>
     
     <!-- Ionic Framework -->
     <script type="module" src="https://cdn.jsdelivr.net/npm/@ionic/core/dist/ionic/ionic.esm.js"></script>
@@ -13,15 +13,15 @@
     <!-- Vue 3 -->
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     
-    <!-- Google Fonts - 筆文字風フォント -->
+    <!-- Google Fonts - Yuji Syuku -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700;900&family=Zen+Antique&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Yuji+Syuku&family=Noto+Serif+JP:wght@400;700;900&display=swap" rel="stylesheet">
     
     <style>
         /* 設定定数 */
         :root {
-            --calligraphy-font: 'Zen Antique', 'Noto Serif JP', serif;
+            --calligraphy-font: 'Yuji Syuku', 'Noto Serif JP', serif;
             --background-color: #f5f5dc;
             --paper-color: #faf0e6;
             --text-color: #2c1810;
@@ -70,7 +70,8 @@
             border-radius: 8px;
             padding: 1rem;
             position: relative;
-            min-height: 200px;
+            min-height: 280px;
+            aspect-ratio: 3/4;
             background-image: 
                 radial-gradient(circle at 20% 30%, rgba(204, 51, 51, 0.1) 0%, transparent 20%),
                 radial-gradient(circle at 80% 70%, rgba(204, 51, 51, 0.1) 0%, transparent 20%),
@@ -82,7 +83,7 @@
             font-size: 0.9rem;
             color: var(--text-color);
             margin-bottom: 0.5rem;
-            text-align: left;
+            text-align: center;
             font-weight: 700;
         }
         
@@ -93,12 +94,20 @@
             text-align: center;
             writing-mode: vertical-rl;
             text-orientation: upright;
-            height: 120px;
+            height: 160px;
             display: flex;
             align-items: center;
             justify-content: center;
             margin: 1rem auto;
             letter-spacing: 0.1em;
+        }
+        
+        .position-title {
+            font-size: 0.8rem;
+            color: var(--text-color);
+            text-align: center;
+            margin-bottom: 0.3rem;
+            font-weight: 600;
         }
         
         .amount {
@@ -133,13 +142,13 @@
             }
             
             .hanashi-card {
-                min-height: 180px;
+                min-height: 240px;
                 padding: 0.8rem;
             }
             
             .person-name {
                 font-size: 1.3rem;
-                height: 100px;
+                height: 140px;
             }
             
             .amount {
@@ -165,7 +174,7 @@
         <ion-app>
             <ion-header>
                 <ion-toolbar color="primary">
-                    <ion-title>花板 - 祭礼寄付者名簿</ion-title>
+                    <ion-title>令和七年度 並松町若頭 御花御芳名</ion-title>
                 </ion-toolbar>
             </ion-header>
             
@@ -175,16 +184,26 @@
                     <div class="search-grid">
                         <ion-item>
                             <ion-label position="stacked">町名で絞り込み</ion-label>
-                            <ion-input v-model="searchTown" placeholder="町名を入力"></ion-input>
+                            <ion-select v-model="searchTown" placeholder="町名を選択">
+                                <ion-select-option value="">すべて表示</ion-select-option>
+                                <ion-select-option v-for="town in uniqueTowns" :key="town" :value="town">
+                                    {{ town }}
+                                </ion-select-option>
+                            </ion-select>
                         </ion-item>
                         <ion-item>
                             <ion-label position="stacked">金額で絞り込み</ion-label>
-                            <ion-input v-model="searchAmount" placeholder="金額を入力（例：10000）" type="number"></ion-input>
+                            <ion-select v-model="searchAmount" placeholder="金額を選択">
+                                <ion-select-option value="">すべて表示</ion-select-option>
+                                <ion-select-option v-for="amount in uniqueAmounts" :key="amount" :value="amount">
+                                    {{ amount.toLocaleString() }}円
+                                </ion-select-option>
+                            </ion-select>
                         </ion-item>
                     </div>
                     <ion-item>
                         <ion-label position="stacked">フリーワード検索</ion-label>
-                        <ion-input v-model="searchKeyword" placeholder="名前や町名で検索"></ion-input>
+                        <ion-input v-model="searchKeyword" placeholder="名前や町名で検索" @ionInput="onSearchInput"></ion-input>
                     </ion-item>
                     <div style="margin-top: 0.5rem; text-align: center;">
                         <ion-chip color="primary">
@@ -210,6 +229,7 @@
                     <div class="hanaban-grid">
                         <div v-for="donor in displayDonors" :key="donor.id" class="hanashi-card">
                             <div class="town-name">{{ donor.townName }}</div>
+                            <div v-if="donor.position" class="position-title">{{ donor.position }}</div>
                             <div class="person-name">{{ donor.name }}殿</div>
                             <div class="amount">{{ donor.amountKanji }}</div>
                         </div>
@@ -224,7 +244,7 @@
         const CONFIG = {
             SPREADSHEET_ID: '1JUmatTUZADKRnaSXLUAQBVEbNU-dGlql',
             SHEET_NAME: 'R7御花',
-            CALLIGRAPHY_FONT: 'Zen Antique, Noto Serif JP, serif'
+            CALLIGRAPHY_FONT: 'Yuji Syuku, Noto Serif JP, serif'
         };
         
         const { createApp } = Vue;
@@ -237,32 +257,47 @@
                     error: null,
                     searchTown: '',
                     searchAmount: '',
-                    searchKeyword: ''
+                    searchKeyword: '',
+                    debouncedKeyword: '',
+                    debounceTimeout: null
                 };
             },
             computed: {
+                uniqueTowns() {
+                    const towns = [...new Set(this.donors.map(donor => donor.townName))];
+                    return towns.sort((a, b) => {
+                        const aCategory = this.getAreaCategory(a);
+                        const bCategory = this.getAreaCategory(b);
+                        if (aCategory !== bCategory) {
+                            return aCategory - bCategory;
+                        }
+                        return a.localeCompare(b);
+                    });
+                },
+                uniqueAmounts() {
+                    const amounts = [...new Set(this.donors.map(donor => donor.amount))];
+                    return amounts.sort((a, b) => b - a);
+                },
                 filteredDonors() {
                     let filtered = this.donors;
                     
                     // 町名フィルタ
                     if (this.searchTown) {
-                        filtered = filtered.filter(donor => 
-                            donor.townName.includes(this.searchTown)
-                        );
+                        filtered = filtered.filter(donor => donor.townName === this.searchTown);
                     }
                     
                     // 金額フィルタ（完全一致）
                     if (this.searchAmount) {
-                        const amount = parseInt(this.searchAmount);
-                        filtered = filtered.filter(donor => donor.amount === amount);
+                        filtered = filtered.filter(donor => donor.amount === this.searchAmount);
                     }
                     
-                    // フリーワード検索
-                    if (this.searchKeyword) {
-                        const keyword = this.searchKeyword.toLowerCase();
+                    // フリーワード検索（デバウンス済み）
+                    if (this.debouncedKeyword) {
+                        const keyword = this.debouncedKeyword.toLowerCase();
                         filtered = filtered.filter(donor => 
                             donor.name.toLowerCase().includes(keyword) ||
-                            donor.townName.toLowerCase().includes(keyword)
+                            donor.townName.toLowerCase().includes(keyword) ||
+                            (donor.position && donor.position.toLowerCase().includes(keyword))
                         );
                     }
                     
@@ -287,6 +322,19 @@
                 this.loadData();
             },
             methods: {
+                onSearchInput(event) {
+                    this.searchKeyword = event.target.value;
+                    
+                    // デバウンス処理
+                    if (this.debounceTimeout) {
+                        clearTimeout(this.debounceTimeout);
+                    }
+                    
+                    this.debounceTimeout = setTimeout(() => {
+                        this.debouncedKeyword = this.searchKeyword;
+                    }, 300);
+                },
+                
                 async loadData() {
                     this.loading = true;
                     this.error = null;
@@ -320,14 +368,15 @@
                         if (!line) continue;
                         
                         const columns = this.parseCsvLine(line);
-                        if (columns.length < 11) continue;
+                        if (columns.length < 12) continue;
                         
-                        // C列:町名, D列:御芳名, E列:金額, J列:花板不掲載, K列:花板表示順
+                        // C列:町名, D列:役職名, E列:御芳名, F列:金額, K列:花板不掲載, L列:花板表示順
                         const townName = columns[2] || '';
-                        const name = columns[3] || '';
-                        const amountStr = columns[4] || '';
-                        const hideFlag = columns[9] || '';
-                        const displayOrder = columns[10] || '';
+                        const position = columns[3] || '';
+                        const name = columns[4] || '';
+                        const amountStr = columns[5] || '';
+                        const hideFlag = columns[10] || '';
+                        const displayOrder = columns[11] || '';
                         
                         // 花板不掲載フラグが1の場合はスキップ
                         if (hideFlag === '1') continue;
@@ -339,6 +388,7 @@
                         donors.push({
                             id: i,
                             townName: townName.replace(/"/g, ''),
+                            position: position.replace(/"/g, '').trim() || null,
                             name: name.replace(/"/g, ''),
                             amount: amount,
                             amountKanji: this.convertToKanji(amount),
@@ -380,17 +430,18 @@
                 
                 convertToKanji(amount) {
                     const kanjiMap = {
-                        30000: '金、参万円也',
-                        20000: '金、弐万円也',
-                        10000: '金、壱万円也',
-                        7000: '金、七千円也',
-                        5000: '金、五千円也',
-                        3000: '金、参千円也',
-                        2000: '金、弐千円也',
-                        1000: '金、千円也'
+                        50000: '金伍萬圓也',
+                        30000: '金參萬圓也',
+                        20000: '金弐萬圓也',
+                        10000: '金壱萬圓也',
+                        7000: '金七千圓也',
+                        5000: '金伍千圓也',
+                        3000: '金參千圓也',
+                        2000: '金弐千圓也',
+                        1000: '金千圓也'
                     };
                     
-                    return kanjiMap[amount] || `金、${amount.toLocaleString()}円也`;
+                    return kanjiMap[amount] || `金${amount.toLocaleString()}圓也`;
                 },
                 
                 getAreaCategory(townName) {
