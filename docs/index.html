@@ -379,7 +379,7 @@
                         const displayOrder = columns[11] || '';
                         
                         // 花板不掲載フラグが1の場合はスキップ
-                        if (hideFlag === '1') continue;
+                        if (hideFlag == 1) continue;
                         
                         // 金額の処理
                         const amount = this.parseAmount(amountStr);
