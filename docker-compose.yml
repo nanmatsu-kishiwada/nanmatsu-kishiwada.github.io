@@ -1,0 +1,14 @@
+services:
+  web_server:
+    container_name: web_server
+    #image: nginx:1.11.13-alpine
+    image: httpd:2.4.48
+    ports:
+      - "80:80"
+      - "8080:80"
+    volumes:
+      #- ./docs:/usr/share/nginx/html
+      - ./docs:/usr/local/apache2/htdocs/
+    environment:
+      TZ: Asia/Tokyo
+
