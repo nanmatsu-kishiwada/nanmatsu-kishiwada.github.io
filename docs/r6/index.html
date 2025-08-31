@@ -300,7 +300,7 @@
                         <div class="search-grid">
                             <ion-item>
                                 <ion-label position="stacked">町名で絞り込み</ion-label>
-                                <ion-select v-model="searchTown" placeholder="町名を選択" @ionChange="onTownChange">
+                                <ion-select :value="searchTown" placeholder="町名を選択" ref="searchTownSelect">
                                     <ion-select-option value="">すべて表示</ion-select-option>
                                     <ion-select-option v-for="town in uniqueTowns" :key="town" :value="town">
                                         {{ town }}
@@ -309,7 +309,7 @@
                             </ion-item>
                             <ion-item>
                                 <ion-label position="stacked">金額で絞り込み</ion-label>
-                                <ion-select v-model="searchAmount" placeholder="金額を選択" @ionChange="onAmountChange">
+                                <ion-select :value="searchAmount" placeholder="金額を選択" ref="searchAmountSelect">
                                     <ion-select-option value="">すべて表示</ion-select-option>
                                     <ion-select-option v-for="amount in uniqueAmounts" :key="amount" :value="amount">
                                         {{ amount.toLocaleString() }}円
@@ -319,7 +319,7 @@
                         </div>
                         <ion-item>
                             <ion-label position="stacked">フリーワード検索</ion-label>
-                            <ion-input v-model="searchKeyword" placeholder="名前や町名で検索" @ionInput="onSearchInput"></ion-input>
+                            <ion-input :value="searchKeyword" placeholder="名前や町名で検索" ref="searchInput"></ion-input>
                         </ion-item>
                         <div style="margin-top: 0.5rem; text-align: center;">
                             <ion-chip color="primary">
@@ -406,6 +406,12 @@
                 this.loadData().then(()=>{
                     this.refreshFilteredDonors()
                 });
+
+                // イベントリスナーを直接登録
+                // TODO: @ionChange などの構文ではうまく動作しなかった
+                this.$refs.searchTownSelect.addEventListener('ionChange', this.onTownChange);
+                this.$refs.searchAmountSelect.addEventListener('ionChange', this.onAmountChange);
+                this.$refs.searchInput.addEventListener('ionInput', this.onSearchInput);
             },
             watch: {
                 searchTown(newValue) {
@@ -424,6 +430,7 @@
                 },
                 
                 onTownChange(event) {
+                    // TODO: v-model, :value で のバインディングも効いていないようで、ここでセットして初めて watch が発動する
                     this.searchTown = event.detail.value;
                 },
                 
