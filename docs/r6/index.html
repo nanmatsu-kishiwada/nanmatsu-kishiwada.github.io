@@ -489,7 +489,7 @@
                         // C列:町名, D列:役職名, E列:御芳名, F列:金額, K列:花板不掲載, L列:花板表示順
                         const townName = columns[2] || '';
                         const position = columns[3] || '';
-                        const name = columns[4] || '';
+                        const name = columns[4]?.replace(/\s+/g, ' ') || '';
                         const amountStr = columns[5] || '';
                         const hideFlag = columns[10] || '';
                         const displayOrder = columns[11] || '';
