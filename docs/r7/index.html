@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>令和七年度松 松町若頭 御花御芳名</title>
+    <title>令和七年度 並松町若頭 御花御芳名</title>
     
     <!-- Ionic Framework -->
-    <script type="module" src="https://cdn.jsdelivr.net/npm/@ionic/core/dist/ionic/ionic.esm.js"></script>
-    <script nomodule src="https://cdn.jsdelivr.net/npm/@ionic/core/dist/ionic/ionic.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ionic/core/css/ionic.bundle.css" />
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@ionic/core@8.7.3/dist/ionic/ionic.esm.js"></script>
+    <script nomodule src="https://cdn.jsdelivr.net/npm/@ionic/core@8.7.3/dist/ionic/ionic.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ionic/core@8.7.3/css/ionic.bundle.css" />
     
     <!-- Vue 3 -->
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/vue@3.5.20/dist/vue.global.js"></script>
     
     <!-- Google Fonts - Yuji Syuku -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -35,11 +35,249 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         }
         
-        .mohitsu {
+        .title-default {
             /* 毛筆フォント */
             font-family: var(--calligraphy-font) !important;
         }
         
+        .hanashi-card {
+            /* 毛筆フォント */
+            font-family: var(--calligraphy-font) !important;
+        }
+        
+        .search-container {
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .search-toggle {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            background: #3880ff;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .search-content {
+            padding: 1rem;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        
+        .search-content.collapsed {
+            max-height: 0;
+            padding: 0 1rem;
+        }
+        
+        .search-content.expanded {
+            max-height: 500px;
+        }
+        
+        .search-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .hanaban-container {
+            padding: 1rem;
+            background-color: var(--background-color);
+        }
+        
+        .hanaban-grid {
+            display: flex ;
+            flex-flow: row-reverse wrap;
+            gap: 1rem;
+            margin: 0 auto;
+        }
+        
+        .hanashi-card {
+            /*border: 2px solid var(--red-accent);*/
+            border-radius: 8px;
+            padding: 0.1rem;
+            position: relative;
+            min-width: 150px;
+            aspect-ratio: 3/4;
+            /* background-image: 
+                radial-gradient(circle at 20% 30%, rgba(204, 51, 51, 0.1) 0%, transparent 20%),
+                radial-gradient(circle at 80% 70%, rgba(204, 51, 51, 0.1) 0%, transparent 20%),
+                linear-gradient(45deg, rgba(204, 51, 51, 0.05) 25%, transparent 25%); */
+            background: whitre;
+            /* background-image: url("/images/ebi.png"); */
+            background-image: url("/images/ebi2.jpg");
+            background-size: contain;
+            background-repeat: repeat;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .town-name {
+            font-size: 1.3rem;
+            color: var(--text-color);
+            margin-bottom: 0.2rem;
+            text-align: center;
+            font-weight: 700;
+        }
+        
+        .dono {
+            font-size: 1.3rem;
+            color: var(--text-color);
+            /*margin-bottom: 0.8rem;*/
+            text-align: center;
+            font-weight: 700;
+        }
+        
+        .name-container {
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            margin: auto ;
+            writing-mode: vertical-rl;
+            flex-direction: column;
+            word-break: break-word;
+            max-height: 116px;
+            line-height: 1.5rem;
+            font-size: 1.4rem;
+        }
+        
+        .position-title {
+            font-size: 0.9rem;
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            color: var(--text-color);
+            font-weight: 600;
+            margin-right: -1.5rem;
+        }
+        
+        .person-name {
+            font-weight: 700;
+            color: var(--text-color);
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            letter-spacing: 0.15em;
+            text-combine-upright: digits 2;
+            text-align: start;
+            text-align-last: end;
+        }
+        .text-len-0 {
+            font-size: 110%;
+            text-align: justify;
+        }
+        .text-len-3 {
+            font-size: 90%;
+            text-align: justify;
+        } 
+        .text-len-6 {
+            font-size: 84%;
+        } 
+        .text-len-9 {
+            font-size: 75%;
+        } 
+        .text-len-12 {
+            font-size: 70%;
+        } 
+        .text-len-15 {
+            font-size: 75%;
+        } 
+        .text-len-18 {
+            font-size: 70%;
+        } 
+        .text-len-21 {
+            font-size: 50%;
+        } 
+        .text-len-24 {
+            font-size: 50%;
+        } 
+        .text-len-27 {
+            font-size: 50%;
+        } 
+        .text-len-30 {
+            font-size: 50%;
+        } 
+        .text-len-33 {
+            font-size: 50%;
+        } 
+
+        .amount {
+            position: absolute;
+            right: 0.5rem;
+            top: 2rem;
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            font-size: 1.2rem;
+            color: var(--text-color);
+            font-weight: 700;
+            letter-spacing: 0.08em;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            font-size: 1.2rem;
+        }
+        
+        .error {
+            text-align: center;
+            padding: 2rem;
+            color: #cc3333;
+            font-size: 1.1rem;
+        }
+        
+        .chevron {
+            transition: transform 0.3s ease;
+        }
+        
+        .chevron.rotated {
+            transform: rotate(180deg);
+        }
+        
+        @media (max-width: 768px) {
+            /*
+            .hanaban-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.8rem;
+            }
+            */  
+            .hanashi-card {
+                /* min-width: 47vw; *?
+                /*padding: 1.2rem;*/
+            }
+            
+            .person-name {
+                /*font-size: 2.3rem;*/
+            }
+            
+            .name-container {
+                /*margin: 1.2rem auto;*/
+            }
+         /*   
+            .amount {
+                font-size: 1.3rem;
+                top: 2.5rem;
+                right: 1.2rem;
+            }
+            
+        */
+            .search-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .search-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 <body>
@@ -52,26 +290,347 @@
             </ion-header>
             
             <ion-content>
-                準備中
+                <!-- 検索フォーム（アコーディオン） -->
+                <div class="search-container">
+                    <div class="search-toggle" @click="toggleSearch">
+                        <span>🔍 検索・絞り込み</span>
+                        <ion-icon name="chevron-down" :class="{ 'chevron': true, 'rotated': searchExpanded }"></ion-icon>
+                    </div>
+                    <div :class="{ 'search-content': true, 'expanded': searchExpanded, 'collapsed': !searchExpanded }">
+                        <div class="search-grid">
+                            <ion-item>
+                                <ion-label position="stacked">町名で絞り込み</ion-label>
+                                <ion-select :value="searchTown" placeholder="町名を選択" ref="searchTownSelect">
+                                    <ion-select-option value="">すべて表示</ion-select-option>
+                                    <ion-select-option v-for="town in uniqueTowns" :key="town" :value="town">
+                                        {{ town }}
+                                    </ion-select-option>
+                                </ion-select>
+                            </ion-item>
+                            <ion-item>
+                                <ion-label position="stacked">金額で絞り込み</ion-label>
+                                <ion-select :value="searchAmount" placeholder="金額を選択" ref="searchAmountSelect">
+                                    <ion-select-option value="">すべて表示</ion-select-option>
+                                    <ion-select-option v-for="amount in uniqueAmounts" :key="amount" :value="amount">
+                                        {{ amount.toLocaleString() }}円
+                                    </ion-select-option>
+                                </ion-select>
+                            </ion-item>
+                        </div>
+                        <ion-item>
+                            <ion-label position="stacked">フリーワード検索</ion-label>
+                            <ion-input :value="searchKeyword" placeholder="名前や町名で検索" ref="searchInput"></ion-input>
+                        </ion-item>
+                        <div style="margin-top: 0.5rem; text-align: center;">
+                            <ion-chip color="primary">
+                                <ion-label>表示件数: {{ filteredDonors.length }}</ion-label>
+                            </ion-chip>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- ローディング表示 -->
+                <div v-if="loading" class="loading">
+                    <ion-spinner></ion-spinner>
+                    <p>データを読み込んでいます...</p>
+                </div>
+                
+                <!-- エラー表示 -->
+                <div v-if="error" class="error">
+                    <p>{{ error }}</p>
+                    <ion-button @click="loadData" color="primary">再読み込み</ion-button>
+                </div>
+                
+                <!-- 花板表示 -->
+                <div v-if="!loading && !error" class="hanaban-container">
+                    <div class="hanaban-grid">
+                        <div v-for="donor in filteredDonors" :key="donor.id" class="hanashi-card">
+                            <div class="town-name">{{ donor.townName }}</div>
+                            <div class="name-container">
+                                <div class="amount">{{ donor.amountKanji }}</div>
+                                <div v-if="donor.position" class="position-title">{{ donor.position }}</div>
+                                <!-- TODO: 二行に分けて、1行目を上に、二行目を下にしたい -->
+                                    <div class="person-name" :class="'text-len-' + Math.trunc(donor.name.length/3)*3">{{ donor.name }}</div>
+                            </div>
+                            <div class="dono">殿</div>
+                        </div>
+                    </div>
+                </div>
             </ion-content>
         </ion-app>
     </div>
 
     <script>
+        // 設定定数
+        const CONFIG = {
+            SPREADSHEET_ID: '1WyNipFGZPQzFfLmJZ2JpS8zZa940w-pUrpqk-5miGxU',
+            SHEET_NAME: 'R7掲載用',
+            CALLIGRAPHY_FONT: 'Yuji Syuku, Noto Serif JP, serif'
+        };
+        
         const { createApp } = Vue;
         
-        createApp({
+        const app = createApp({
             data() {
                 return {
+                    donors: [],
+                    filteredDonors: [],
+                    loading: true,
+                    error: null,
+                    searchTown: '',
+                    searchAmount: '',
+                    searchKeyword: '',
+                    debouncedKeyword: '',
+                    debounceTimeout: null,
+                    searchExpanded: false
                 };
             },
             computed: {
+                uniqueTowns() {
+                    const towns = [...new Set(this.donors.map(donor => donor.townName))];
+                    return towns.sort((a, b) => {
+                        const aCategory = this.getAreaCategory(a);
+                        const bCategory = this.getAreaCategory(b);
+                        if (aCategory !== bCategory) {
+                            return aCategory - bCategory;
+                        }
+                        return a.localeCompare(b);
+                    });
+                },
+                uniqueAmounts() {
+                    const amounts = [...new Set(this.donors.map(donor => donor.amount))];
+                    return amounts.sort((a, b) => b - a);
+                },
             },
             mounted() {
+                this.loadData().then(()=>{
+                    this.refreshFilteredDonors()
+                });
+
+                // イベントリスナーを直接登録
+                // TODO: @ionChange などの構文ではうまく動作しなかった
+                this.$refs.searchTownSelect.addEventListener('ionChange', this.onTownChange);
+                this.$refs.searchAmountSelect.addEventListener('ionChange', this.onAmountChange);
+                this.$refs.searchInput.addEventListener('ionInput', this.onSearchInput);
+            },
+            watch: {
+                searchTown(newValue) {
+                    this.refreshFilteredDonors();
+                },
+                searchAmount(newValue) {
+                    this.refreshFilteredDonors();
+                },
+                debouncedKeyword(newValue) {
+                    this.refreshFilteredDonors();
+                }
             },
             methods: {
+                toggleSearch() {
+                    this.searchExpanded = !this.searchExpanded;
+                },
+                
+                onTownChange(event) {
+                    // TODO: v-model, :value で のバインディングも効いていないようで、ここでセットして初めて watch が発動する
+                    this.searchTown = event.detail.value;
+                },
+                
+                onAmountChange(event) {
+                    this.searchAmount = event.detail.value;
+                },
+                
+                onSearchInput(event) {
+                    this.searchKeyword = event.detail.value;
+                    
+                    // デバウンス処理
+                    if (this.debounceTimeout) {
+                        clearTimeout(this.debounceTimeout);
+                    }
+                    
+                    this.debounceTimeout = setTimeout(() => {
+                        this.debouncedKeyword = this.searchKeyword;
+                    }, 300);
+                },
+                
+                async loadData() {
+                    this.loading = true;
+                    this.error = null;
+                    
+                    try {
+                        const csvUrl = `https://docs.google.com/spreadsheets/d/${CONFIG.SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(CONFIG.SHEET_NAME)}`;
+                        
+                        const response = await fetch(csvUrl);
+                        if (!response.ok) {
+                            throw new Error('データの取得に失敗しました');
+                        }
+                        
+                        const csvText = await response.text();
+                        this.parseCsvData(csvText);
+                        
+                    } catch (err) {
+                        this.error = 'データの読み込みに失敗しました: ' + err.message;
+                        console.error('Error loading data:', err);
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+                
+                parseCsvData(csvText) {
+                    const lines = csvText.split('\n');
+                    const donors = [];
+                    
+                    // ヘッダー行をスキップして処理
+                    for (let i = 2; i < lines.length; i++) {
+                        const line = lines[i].trim();
+                        if (!line) continue;
+                        
+                        const columns = this.parseCsvLine(line);
+                        if (columns.length < 13) continue;
+                        
+                        // D列:町名, K列:役職名, E列:御芳名, L列:金額, J列:花板非掲載, L列:花板表示順
+                        const townName = columns[3] || '';
+                        const position = columns[10] || '';
+                        const name = columns[4] || '';
+                        const amountStr = columns[11] || '';
+                        const hideFlag = columns[9] || '';
+                        const displayOrder = columns[12] || '';
+                        
+                        // 花板不掲載フラグが1の場合はスキップ
+                        if (hideFlag === '1') continue;
+                        
+                        // 金額の処理
+                        const amount = this.parseAmount(amountStr);
+                        if (!amount || !name.trim()) continue;
+                        
+                        donors.push({
+                            id: i,
+                            townName: townName.replace(/"/g, ''),
+                            position: position.replace(/"/g, '').trim() || null,
+                            name: name.replace(/"/g, ''),
+                            amount: amount,
+                            amountKanji: this.convertToKanji(amount),
+                            displayOrder: displayOrder ? parseFloat(displayOrder) : null
+                        });
+                    }
+                    
+                    // ソート処理
+                    this.donors = this.sortDonors(donors);
+                },
+                
+                parseCsvLine(line) {
+                    const result = [];
+                    let current = '';
+                    let inQuotes = false;
+                    
+                    for (let i = 0; i < line.length; i++) {
+                        const char = line[i];
+                        
+                        if (char === '"') {
+                            inQuotes = !inQuotes;
+                        } else if (char === ',' && !inQuotes) {
+                            result.push(current);
+                            current = '';
+                        } else {
+                            current += char;
+                        }
+                    }
+                    result.push(current);
+                    
+                    return result;
+                },
+                
+                parseAmount(amountStr) {
+                    const cleaned = amountStr.replace(/[¥,]/g, '').replace(/"/g, '');
+                    const amount = parseInt(cleaned);
+                    return isNaN(amount) ? null : amount;
+                },
+                
+                convertToKanji(amount) {
+                    const kanjiMap = {
+                        50000: '金伍萬圓也',
+                        30000: '金參萬圓也',
+                        25000: '金弐萬伍千圓也',
+                        20000: '金弐萬圓也',
+                        15000: '金壱萬伍千圓也',
+                        10000: '金壱萬圓也',
+                        8000: '金八千圓也',
+                        7000: '金七千圓也',
+                        5000: '金伍千圓也',
+                        3000: '金參千圓也',
+                        2000: '金弐千圓也',
+                        1000: '金千圓也'
+                    };
+                    
+                    return kanjiMap[amount] || `金${amount.toLocaleString()}圓也`;
+                },
+                
+                getAreaCategory(townName) {
+                    if (townName === '並松町') return 0; // 最優先
+                    if (townName.endsWith('町')) return 1;
+                    if (townName.endsWith('市')) return 2;
+                    if (townName.match(/[都道府県]$/)) return 3;
+                    return 4; // その他
+                },
+                
+                refreshFilteredDonors() {
+                    let filtered = [...this.donors];
+                    
+                    // 町名フィルタ
+                    if (this.searchTown) {
+                        filtered = filtered.filter(donor => donor.townName === this.searchTown);
+                    }
+                    
+                    // 金額フィルタ
+                    if (this.searchAmount) {
+                        filtered = filtered.filter(donor => donor.amount === this.searchAmount);
+                    }
+                    
+                    // フリーワード検索（デバウンス済み）
+                    if (this.debouncedKeyword) {
+                        const keyword = this.debouncedKeyword.toLowerCase();
+                        filtered = filtered.filter(donor => 
+                            donor.name.toLowerCase().includes(keyword) ||
+                            donor.townName.toLowerCase().includes(keyword) ||
+                            (donor.position && donor.position.toLowerCase().includes(keyword))
+                        );
+                    }
+                    
+                    this.filteredDonors = filtered;
+                },
+
+                sortDonors(donors) {
+                    return donors.sort((a, b) => {
+                        // 1. 金額の高い順
+                        if (a.amount !== b.amount) {
+                            return b.amount - a.amount;
+                        }
+                        
+                        // 2. エリア区分の順
+                        const aCategory = this.getAreaCategory(a.townName);
+                        const bCategory = this.getAreaCategory(b.townName);
+                        if (aCategory !== bCategory) {
+                            return aCategory - bCategory;
+                        }
+                        
+                        // 3. 花板表示順の指定順
+                        if (a.displayOrder !== null && b.displayOrder !== null) {
+                            if (a.displayOrder !== b.displayOrder) {
+                                return a.displayOrder - b.displayOrder;
+                            }
+                        } else if (a.displayOrder !== null) {
+                            return -1;
+                        } else if (b.displayOrder !== null) {
+                            return 1;
+                        }
+                        
+                        // 4. 町名順（文字コード順）
+                        return a.townName.localeCompare(b.townName);
+                    });
+                }
             }
-        }).mount('#app');
+        });
+
+        app.config.compilerOptions.isCustomElement = (tag) => tag.includes('-')
+        app.mount('#app')
     </script>
 </body>
 </html>
