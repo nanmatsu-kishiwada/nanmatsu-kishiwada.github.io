@@ -279,6 +279,18 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        /* HACK: Safari のみに適用したい CSS */
+        _::-webkit-full-page-media, _:future, :root .person-name {
+            letter-spacing: 0.1em;
+            word-spacing: -0.8em;
+        }
+        @media screen and (-webkit-min-device-pixel-ratio:0) {
+            ::i-block-chrome, .person-name {
+                letter-spacing: 0.1em;
+                word-spacing: -0.8em;
+            }
+        }
     </style>
 </head>
 <body>
