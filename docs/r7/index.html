@@ -40,7 +40,7 @@
             font-family: var(--calligraphy-font) !important;
         }
         
-        .hanashi-card {
+        .hanshi-card {
             /* 毛筆フォント */
             font-family: var(--calligraphy-font) !important;
         }
@@ -85,19 +85,19 @@
             margin-bottom: 0.5rem;
         }
         
-        .hanaban-container {
+        .hanaita-container {
             padding: 1rem;
             background-color: var(--background-color);
         }
         
-        .hanaban-grid {
+        .hanaita-grid {
             display: flex ;
             flex-flow: row-reverse wrap;
             gap: 1rem;
             margin: 0 auto;
         }
         
-        .hanashi-card {
+        .hanshi-card {
             /*border: 2px solid var(--red-accent);*/
             border-radius: 8px;
             padding: 0.1rem;
@@ -243,32 +243,6 @@
         }
         
         @media (max-width: 768px) {
-            /*
-            .hanaban-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 0.8rem;
-            }
-            */  
-            .hanashi-card {
-                /* min-width: 47vw; *?
-                /*padding: 1.2rem;*/
-            }
-            
-            .person-name {
-                /*font-size: 2.3rem;*/
-            }
-            
-            .name-container {
-                /*margin: 1.2rem auto;*/
-            }
-         /*   
-            .amount {
-                font-size: 1.3rem;
-                top: 2.5rem;
-                right: 1.2rem;
-            }
-            
-        */
             .search-grid {
                 grid-template-columns: 1fr;
             }
@@ -355,9 +329,9 @@
                 </div>
                 
                 <!-- 花板表示 -->
-                <div v-if="!loading && !error" class="hanaban-container">
-                    <div class="hanaban-grid">
-                        <div v-for="donor in filteredDonors" :key="donor.id" class="hanashi-card">
+                <div v-if="!loading && !error" class="hanaita-container">
+                    <div class="hanaita-grid">
+                        <div v-for="donor in filteredDonors" :key="donor.id" class="hanshi-card">
                             <div class="town-name">{{ donor.townName }}</div>
                             <div class="name-container">
                                 <div class="amount">{{ donor.amountKanji }}</div>
