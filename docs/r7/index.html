@@ -543,7 +543,7 @@
                             id: i,
                             townName: townName.replace(/"/g, ''),
                             position: position.replace(/"/g, '').trim() || null,
-                            name: name.replace(/"/g, ''),
+                            name: name.replace(/[（\(]株[）\)]/g, '㈱'),
                             url,
                             amount,
                             amountKanji: this.convertToKanji(amount),
