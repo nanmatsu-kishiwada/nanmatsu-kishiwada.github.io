@@ -191,43 +191,61 @@
             text-align: start;
             text-align-last: end;
         }
-        .text-len-0 {
-            font-size: 110%;
+        .text-len-1 {
+            font-size: 150%;
+            text-align: justify;
+        }
+        .text-len-2 {
+            font-size: 150%;
             text-align: justify;
         }
         .text-len-3 {
-            font-size: 90%;
+            font-size: 130%;
+            text-align: justify;
+        } 
+        .text-len-4 {
+            font-size: 120%;
+            text-align: justify;
+        } 
+        .text-len-5 {
+            font-size: 105%;
             text-align: justify;
         } 
         .text-len-6 {
-            font-size: 84%;
+            font-size: 85%;
+        } 
+        .text-len-7 {
+            font-size: 80%;
+        } 
+        .text-len-8 {
+            font-size: 80%;
         } 
         .text-len-9 {
             font-size: 75%;
         } 
         .text-len-12 {
-            font-size: 70%;
+            font-size: 75%;
         } 
         .text-len-15 {
-            font-size: 75%;
+            font-size: 70%;
         } 
         .text-len-18 {
             font-size: 70%;
         } 
         .text-len-21 {
-            font-size: 50%;
+            font-size: 65%;
         } 
         .text-len-24 {
-            font-size: 50%;
+            font-size: 65%;
         } 
         .text-len-27 {
-            font-size: 50%;
+            font-size: 65%;
         } 
         .text-len-30 {
-            font-size: 50%;
+            font-size: 60%;
         } 
         .text-len-33 {
-            font-size: 50%;
+            font-size: 60%;
         } 
 
         .amount {
@@ -368,7 +386,7 @@
                                 <div class="amount">{{ donor.amountKanji }}</div>
                                 <div v-if="donor.position" class="position-title">{{ donor.position }}</div>
                                 <!-- TODO: 二行に分けて、1行目を上に、二行目を下にしたい -->
-                                    <div class="person-name" :class="'text-len-' + Math.trunc(donor.name.length/3)*3">{{ donor.name }}</div>
+                                    <div class="person-name" :class="'text-len-' + cssClassByNameLen(donor.name)">{{ donor.name }}</div>
                             </div>
                             <div class="dono">殿</div>
                             <div class="link-container" v-if="donor.url">
@@ -577,6 +595,10 @@
                     return result;
                 },
                 
+                cssClassByNameLen(name) {
+                    return name.length >= 9 ? Math.trunc(name.length/3)*3 : name.length;
+                },
+
                 parseAmount(amountStr) {
                     const cleaned = amountStr.replace(/[¥,]/g, '').replace(/"/g, '');
                     const amount = parseInt(cleaned);
