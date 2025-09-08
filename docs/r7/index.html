@@ -32,6 +32,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Yuji+Syuku&family=Noto+Serif+JP:wght@400;700;900&display=swap" rel="stylesheet">
     
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
         /* 設定定数 */
         :root {
@@ -130,6 +133,10 @@
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
             display: flex;
             flex-direction: column;
+        }
+        
+        .hanshi-card[data-clickable="true"] {
+            cursor: pointer;
         }
         
         .town-name {
@@ -235,6 +242,13 @@
             letter-spacing: 0.08em;
         }
         
+        .link-container {
+            position: absolute;
+            left: 10px;
+            bottom: 10px;
+            font-size: 1.2rem;
+        }
+
         .loading {
             text-align: center;
             padding: 2rem;
@@ -345,7 +359,10 @@
                 <!-- 花板表示 -->
                 <div v-if="!loading && !error" class="hanaita-container">
                     <div class="hanaita-grid">
-                        <div v-for="donor in filteredDonors" :key="donor.id" class="hanshi-card">
+                        <div v-for="donor in filteredDonors" :key="donor.id" 
+                             class="hanshi-card"
+                             @click="openUrl(donor.url)"
+                             :data-clickable="!!donor.url">
                             <div class="town-name">{{ donor.townName }}</div>
                             <div class="name-container">
                                 <div class="amount">{{ donor.amountKanji }}</div>
@@ -354,6 +371,11 @@
                                     <div class="person-name" :class="'text-len-' + Math.trunc(donor.name.length/3)*3">{{ donor.name }}</div>
                             </div>
                             <div class="dono">殿</div>
+                            <div class="link-container" v-if="donor.url">
+                                <a :href="donor.url" target="_blank">
+                                    <i class="fa-solid fa-up-right-from-square"></i>
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -438,6 +460,12 @@
                     this.searchExpanded = !this.searchExpanded;
                 },
                 
+                openUrl(url) {
+                    if (url && url.trim()) {
+                        window.open(url, '_blank');
+                    }
+                },
+                
                 onTownChange(event) {
                     // TODO: v-model, :value で のバインディングも効いていないようで、ここでセットして初めて watch が発動する
                     this.searchTown = event.detail.value;
@@ -495,13 +523,14 @@
                         const columns = this.parseCsvLine(line);
                         if (columns.length < 13) continue;
                         
-                        // D列:町名, K列:役職名, E列:御芳名, L列:金額, J列:花板非掲載, L列:花板表示順
+                        // D列:町名, K列:役職名, E列:御芳名, L列:金額, J列:花板非掲載, M列:URL, N列:花板表示順
                         const townName = columns[3] || '';
                         const position = columns[10] || '';
                         const name = columns[4]?.replace(/\s+/g, ' ') || '';
                         const amountStr = columns[11] || '';
                         const hideFlag = columns[9] || '';
-                        const displayOrder = columns[12] || '';
+                        const url = columns[12] || '';
+                        const displayOrder = columns[13] || '';
                         
                         // 花板不掲載フラグが1の場合はスキップ
                         if (hideFlag === '1') continue;
@@ -515,7 +544,8 @@
                             townName: townName.replace(/"/g, ''),
                             position: position.replace(/"/g, '').trim() || null,
                             name: name.replace(/"/g, ''),
-                            amount: amount,
+                            url,
+                            amount,
                             amountKanji: this.convertToKanji(amount),
                             displayOrder: displayOrder ? parseFloat(displayOrder) : null
                         });
@@ -560,7 +590,6 @@
                         25000: '金弐萬伍千圓也',
                         20000: '金弐萬圓也',
                         15000: '金壱萬伍千圓也',
-                        12000: '金壱萬弐千圓也',
                         10000: '金壱萬圓也',
                         8000: '金八千圓也',
                         7000: '金七千圓也',
