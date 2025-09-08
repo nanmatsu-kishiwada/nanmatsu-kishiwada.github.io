@@ -192,25 +192,33 @@
             text-align: start;
             text-align-last: end;
         }
+
+        /* HACK: Safari のみに適用したい CSS */
+        _::-webkit-full-page-media, _:future, :root .person-name {
+            letter-spacing: 0.1em;
+            word-spacing: -0.8em;
+        }
+        @media screen and (-webkit-min-device-pixel-ratio:0) {
+            ::i-block-chrome, .person-name {
+                letter-spacing: 0.1em;
+                word-spacing: -0.8em;
+            }
+        }
+
         .text-len-1 {
             font-size: 150%;
-            text-align: justify;
         }
         .text-len-2 {
             font-size: 150%;
-            text-align: justify;
         }
         .text-len-3 {
             font-size: 130%;
-            text-align: justify;
         } 
         .text-len-4 {
             font-size: 120%;
-            text-align: justify;
         } 
         .text-len-5 {
-            font-size: 105%;
-            text-align: justify;
+            font-size: 100%;
         } 
         .text-len-6 {
             font-size: 85%;
@@ -219,19 +227,19 @@
             font-size: 80%;
         } 
         .text-len-8 {
-            font-size: 80%;
+            font-size: 100%;
         } 
         .text-len-9 {
-            font-size: 75%;
+            font-size: 90%;
         } 
         .text-len-12 {
-            font-size: 75%;
+            font-size: 70%;
         } 
         .text-len-15 {
-            font-size: 70%;
+            font-size: 65%;
         } 
         .text-len-18 {
-            font-size: 70%;
+            font-size: 65%;
         } 
         .text-len-21 {
             font-size: 65%;
@@ -297,18 +305,6 @@
         @media (max-width: 480px) {
             .search-grid {
                 grid-template-columns: 1fr;
-            }
-        }
-
-        /* HACK: Safari のみに適用したい CSS */
-        _::-webkit-full-page-media, _:future, :root .person-name {
-            letter-spacing: 0.1em;
-            word-spacing: -0.8em;
-        }
-        @media screen and (-webkit-min-device-pixel-ratio:0) {
-            ::i-block-chrome, .person-name {
-                letter-spacing: 0.1em;
-                word-spacing: -0.8em;
             }
         }
     </style>
