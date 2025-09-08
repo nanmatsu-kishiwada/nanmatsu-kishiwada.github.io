@@ -133,6 +133,7 @@
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
             display: flex;
             flex-direction: column;
+            color: var(--text-color);
         }
         
         .hanshi-card[data-clickable="true"] {
@@ -141,7 +142,6 @@
         
         .town-name {
             font-size: 1.3rem;
-            color: var(--text-color);
             margin-bottom: 0.2rem;
             text-align: center;
             font-weight: 700;
@@ -149,7 +149,6 @@
         
         .dono {
             font-size: 1.3rem;
-            color: var(--text-color);
             /*margin-bottom: 0.8rem;*/
             text-align: center;
             font-weight: 700;
@@ -169,18 +168,20 @@
             font-size: 1.4rem;
         }
         
+        .hanshi-card[data-clickable="true"] .person-name {
+            color: blue;
+        }
+        
         .position-title {
             font-size: 0.9rem;
             writing-mode: vertical-rl;
             text-orientation: mixed;
-            color: var(--text-color);
             font-weight: 600;
             margin-right: -1.5rem;
         }
         
         .person-name {
             font-weight: 700;
-            color: var(--text-color);
             writing-mode: vertical-rl;
             text-orientation: mixed;
             display: flex;
@@ -255,7 +256,6 @@
             writing-mode: vertical-rl;
             text-orientation: mixed;
             font-size: 1.2rem;
-            color: var(--text-color);
             font-weight: 700;
             letter-spacing: 0.08em;
         }
