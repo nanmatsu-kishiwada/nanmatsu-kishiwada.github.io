@@ -1,9 +1,23 @@
 <!DOCTYPE html>
+<!--
+    並松町若頭 デジタル花板
+    Copyright (c) 2025 nanmatsu-kishiwada. All rights reserved.
+    
+    このソフトウェアおよびそのソースコードは著作権により保護されています。
+    商用・非商用を問わず、事前の書面による許可なしに、
+    このソフトウェアの一部または全部を使用、複製、改変、
+    配布することを禁じます。
+    
+    This software and its source code are protected by copyright.
+    Any use, reproduction, modification, or distribution of this software,
+    in whole or in part, for commercial or non-commercial purposes,
+    is strictly prohibited without prior written permission.
+-->
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>令和六年度 並松町若頭 御花御芳名</title>
+    <title>並松町若頭 御花御芳名(R7)</title>
     
     <!-- Ionic Framework -->
     <script type="module" src="https://cdn.jsdelivr.net/npm/@ionic/core@8.7.3/dist/ionic/ionic.esm.js"></script>
@@ -18,6 +32,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Yuji+Syuku&family=Noto+Serif+JP:wght@400;700;900&display=swap" rel="stylesheet">
     
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
         /* 設定定数 */
         :root {
@@ -26,7 +43,6 @@
             --paper-color: #faf0e6;
             --text-color: #2c1810;
             --red-accent: #cc3333;
-            --ion-color-primary: #DF81A2;
         }
         
         body {
@@ -41,7 +57,7 @@
             font-family: var(--calligraphy-font) !important;
         }
         
-        .hanashi-card {
+        .hanshi-card {
             /* 毛筆フォント */
             font-family: var(--calligraphy-font) !important;
         }
@@ -57,7 +73,8 @@
         .search-toggle {
             padding: 0.5rem 1rem;
             cursor: pointer;
-            background: #F4D2DE;
+            background: #3880ff;
+            color: white;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -85,19 +102,19 @@
             margin-bottom: 0.5rem;
         }
         
-        .hanaban-container {
+        .hanaita-container {
             padding: 1rem;
             background-color: var(--background-color);
         }
         
-        .hanaban-grid {
+        .hanaita-grid {
             display: flex ;
             flex-flow: row-reverse wrap;
             gap: 1rem;
             margin: 0 auto;
         }
         
-        .hanashi-card {
+        .hanshi-card {
             /*border: 2px solid var(--red-accent);*/
             border-radius: 8px;
             padding: 0.1rem;
@@ -109,18 +126,22 @@
                 radial-gradient(circle at 80% 70%, rgba(204, 51, 51, 0.1) 0%, transparent 20%),
                 linear-gradient(45deg, rgba(204, 51, 51, 0.05) 25%, transparent 25%); */
             background: whitre;
-            /* background-image: url("/images/ebi.png"); */
-            background-image: url("/images/ebi2.jpg");
+            /* background-image: url("/hanaita/images/ebi.png"); */
+            background-image: url("/hanaita/images/ebi2.jpg");
             background-size: contain;
             background-repeat: repeat;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
             display: flex;
             flex-direction: column;
+            color: var(--text-color);
+        }
+        
+        .hanshi-card[data-clickable="true"] {
+            cursor: pointer;
         }
         
         .town-name {
             font-size: 1.3rem;
-            color: var(--text-color);
             margin-bottom: 0.2rem;
             text-align: center;
             font-weight: 700;
@@ -128,7 +149,6 @@
         
         .dono {
             font-size: 1.3rem;
-            color: var(--text-color);
             /*margin-bottom: 0.8rem;*/
             text-align: center;
             font-weight: 700;
@@ -148,18 +168,20 @@
             font-size: 1.4rem;
         }
         
+        .hanshi-card[data-clickable="true"] .person-name {
+            color: blue;
+        }
+        
         .position-title {
             font-size: 0.9rem;
             writing-mode: vertical-rl;
             text-orientation: mixed;
-            color: var(--text-color);
             font-weight: 600;
             margin-right: -1.5rem;
         }
         
         .person-name {
             font-weight: 700;
-            color: var(--text-color);
             writing-mode: vertical-rl;
             text-orientation: mixed;
             display: flex;
@@ -170,43 +192,69 @@
             text-align: start;
             text-align-last: end;
         }
-        .text-len-0 {
-            font-size: 110%;
-            text-align: justify;
+
+        /* HACK: Safari のみに適用したい CSS */
+        _::-webkit-full-page-media, _:future, :root .person-name {
+            letter-spacing: 0.1em;
+            word-spacing: -0.8em;
+        }
+        @media screen and (-webkit-min-device-pixel-ratio:0) {
+            ::i-block-chrome, .person-name {
+                letter-spacing: 0.1em;
+                word-spacing: -0.8em;
+            }
+        }
+
+        .text-len-1 {
+            font-size: 150%;
+        }
+        .text-len-2 {
+            font-size: 150%;
         }
         .text-len-3 {
-            font-size: 90%;
-            text-align: justify;
+            font-size: 130%;
+        } 
+        .text-len-4 {
+            font-size: 120%;
+        } 
+        .text-len-5 {
+            font-size: 100%;
         } 
         .text-len-6 {
-            font-size: 84%;
+            font-size: 85%;
+        } 
+        .text-len-7 {
+            font-size: 80%;
+        } 
+        .text-len-8 {
+            font-size: 100%;
         } 
         .text-len-9 {
-            font-size: 75%;
+            font-size: 90%;
         } 
         .text-len-12 {
             font-size: 70%;
         } 
         .text-len-15 {
-            font-size: 75%;
+            font-size: 65%;
         } 
         .text-len-18 {
-            font-size: 70%;
+            font-size: 65%;
         } 
         .text-len-21 {
-            font-size: 50%;
+            font-size: 65%;
         } 
         .text-len-24 {
-            font-size: 50%;
+            font-size: 65%;
         } 
         .text-len-27 {
-            font-size: 50%;
+            font-size: 65%;
         } 
         .text-len-30 {
-            font-size: 50%;
+            font-size: 60%;
         } 
         .text-len-33 {
-            font-size: 50%;
+            font-size: 60%;
         } 
 
         .amount {
@@ -216,11 +264,17 @@
             writing-mode: vertical-rl;
             text-orientation: mixed;
             font-size: 1.2rem;
-            color: var(--text-color);
             font-weight: 700;
             letter-spacing: 0.08em;
         }
         
+        .link-container {
+            position: absolute;
+            left: 10px;
+            bottom: 10px;
+            font-size: 1.2rem;
+        }
+
         .loading {
             text-align: center;
             padding: 2rem;
@@ -243,32 +297,6 @@
         }
         
         @media (max-width: 768px) {
-            /*
-            .hanaban-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 0.8rem;
-            }
-            */  
-            .hanashi-card {
-                /* min-width: 47vw; *?
-                /*padding: 1.2rem;*/
-            }
-            
-            .person-name {
-                /*font-size: 2.3rem;*/
-            }
-            
-            .name-container {
-                /*margin: 1.2rem auto;*/
-            }
-         /*   
-            .amount {
-                font-size: 1.3rem;
-                top: 2.5rem;
-                right: 1.2rem;
-            }
-            
-        */
             .search-grid {
                 grid-template-columns: 1fr;
             }
@@ -279,18 +307,6 @@
                 grid-template-columns: 1fr;
             }
         }
-
-        /* HACK: Safari のみに適用したい CSS */
-        _::-webkit-full-page-media, _:future, :root .person-name {
-            letter-spacing: 0.1em;
-            word-spacing: -0.8em;
-        }
-        @media screen and (-webkit-min-device-pixel-ratio:0) {
-            ::i-block-chrome, .person-name {
-                letter-spacing: 0.1em;
-                word-spacing: -0.8em;
-            }
-        }
     </style>
 </head>
 <body>
@@ -298,7 +314,7 @@
         <ion-app>
             <ion-header>
                 <ion-toolbar color="primary">
-                    <ion-title>令和六年度 並松町若頭 御花御芳名</ion-title>
+                    <ion-title>並松町若頭 御花御芳名(R7)</ion-title>
                 </ion-toolbar>
             </ion-header>
             
@@ -355,17 +371,25 @@
                 </div>
                 
                 <!-- 花板表示 -->
-                <div v-if="!loading && !error" class="hanaban-container">
-                    <div class="hanaban-grid">
-                        <div v-for="donor in filteredDonors" :key="donor.id" class="hanashi-card">
+                <div v-if="!loading && !error" class="hanaita-container">
+                    <div class="hanaita-grid">
+                        <div v-for="donor in filteredDonors" :key="donor.id" 
+                             class="hanshi-card"
+                             @click="openUrl(donor.url)"
+                             :data-clickable="!!donor.url">
                             <div class="town-name">{{ donor.townName }}</div>
                             <div class="name-container">
                                 <div class="amount">{{ donor.amountKanji }}</div>
                                 <div v-if="donor.position" class="position-title">{{ donor.position }}</div>
                                 <!-- TODO: 二行に分けて、1行目を上に、二行目を下にしたい -->
-                                    <div class="person-name" :class="'text-len-' + Math.trunc(donor.name.length/3)*3">{{ donor.name }}</div>
+                                    <div class="person-name" :class="'text-len-' + cssClassByNameLen(donor.name)">{{ donor.name }}</div>
                             </div>
                             <div class="dono">殿</div>
+                            <div class="link-container" v-if="donor.url">
+                                <a :href="donor.url" target="_blank">
+                                    <i class="fa-solid fa-up-right-from-square"></i>
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -376,8 +400,8 @@
     <script>
         // 設定定数
         const CONFIG = {
-            SPREADSHEET_ID: '1JUmatTUZADKRnaSXLUAQBVEbNU-dGlql',
-            SHEET_NAME: 'R6掲載用',
+            SPREADSHEET_ID: '1WyNipFGZPQzFfLmJZ2JpS8zZa940w-pUrpqk-5miGxU',
+            SHEET_NAME: 'R7掲載用',
             CALLIGRAPHY_FONT: 'Yuji Syuku, Noto Serif JP, serif'
         };
         
@@ -442,6 +466,12 @@
                     this.searchExpanded = !this.searchExpanded;
                 },
                 
+                openUrl(url) {
+                    if (url && url.trim()) {
+                        window.open(url, '_blank');
+                    }
+                },
+                
                 onTownChange(event) {
                     // TODO: v-model, :value で のバインディングも効いていないようで、ここでセットして初めて watch が発動する
                     this.searchTown = event.detail.value;
@@ -492,20 +522,21 @@
                     const donors = [];
                     
                     // ヘッダー行をスキップして処理
-                    for (let i = 1; i < lines.length; i++) {
+                    for (let i = 2; i < lines.length; i++) {
                         const line = lines[i].trim();
                         if (!line) continue;
                         
                         const columns = this.parseCsvLine(line);
-                        if (columns.length < 12) continue;
+                        if (columns.length < 13) continue;
                         
-                        // C列:町名, D列:役職名, E列:御芳名, F列:金額, K列:花板不掲載, L列:花板表示順
-                        const townName = columns[2] || '';
-                        const position = columns[3] || '';
+                        // D列:町名, K列:役職名, E列:御芳名, L列:金額, J列:花板非掲載, M列:URL, N列:花板表示順
+                        const townName = columns[3] || '';
+                        const position = columns[10] || '';
                         const name = columns[4]?.replace(/\s+/g, ' ') || '';
-                        const amountStr = columns[5] || '';
-                        const hideFlag = columns[10] || '';
-                        const displayOrder = columns[11] || '';
+                        const amountStr = columns[11] || '';
+                        const hideFlag = columns[9] || '';
+                        const url = columns[12] || '';
+                        const displayOrder = columns[13] || '';
                         
                         // 花板不掲載フラグが1の場合はスキップ
                         if (hideFlag === '1') continue;
@@ -518,8 +549,9 @@
                             id: i,
                             townName: townName.replace(/"/g, ''),
                             position: position.replace(/"/g, '').trim() || null,
-                            name: name.replace(/"/g, ''),
-                            amount: amount,
+                            name: name.replace(/[（\(]株[）\)]/g, '㈱'),
+                            url,
+                            amount,
                             amountKanji: this.convertToKanji(amount),
                             displayOrder: displayOrder ? parseFloat(displayOrder) : null
                         });
@@ -551,6 +583,10 @@
                     return result;
                 },
                 
+                cssClassByNameLen(name) {
+                    return name.length >= 9 ? Math.trunc(name.length/3)*3 : name.length;
+                },
+
                 parseAmount(amountStr) {
                     const cleaned = amountStr.replace(/[¥,]/g, '').replace(/"/g, '');
                     const amount = parseInt(cleaned);
@@ -559,11 +595,13 @@
                 
                 convertToKanji(amount) {
                     const kanjiMap = {
+                        100000: '金拾萬圓也',
                         50000: '金伍萬圓也',
                         30000: '金參萬圓也',
                         25000: '金弐萬伍千圓也',
                         20000: '金弐萬圓也',
                         15000: '金壱萬伍千圓也',
+                        12000: '金壱萬弐千圓也',
                         10000: '金壱萬圓也',
                         8000: '金八千圓也',
                         7000: '金七千圓也',
