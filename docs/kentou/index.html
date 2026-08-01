@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<!--
+    並松町若頭 デジタル献灯
+    Copyright (c) 2026 nanmatsu-kishiwada. All rights reserved.
+
+    このソフトウェアおよびそのソースコードは著作権により保護されています。
+    商用・非商用を問わず、事前の書面による許可なしに、
+    このソフトウェアの一部または全部を使用、複製、改変、
+    配布することを禁じます。
+
+    This software and its source code are protected by copyright.
+    Any use, reproduction, modification, or distribution of this software,
+    in whole or in part, for commercial or non-commercial purposes,
+    is strictly prohibited without prior written permission.
+-->
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>並松町若頭 献灯御芳名</title>
+
+    <!-- Ionic Framework -->
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@ionic/core@8.7.3/dist/ionic/ionic.esm.js"></script>
+    <script nomodule src="https://cdn.jsdelivr.net/npm/@ionic/core@8.7.3/dist/ionic/ionic.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ionic/core@8.7.3/css/ionic.bundle.css" />
+
+    <!-- Vue 3 -->
+    <script src="https://unpkg.com/vue@3.5.20/dist/vue.global.js"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Yuji+Syuku&family=Noto+Serif+JP:wght@400;700;900&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* ============================================================
+           CSS 変数
+           ============================================================ */
+        :root {
+            --calligraphy-font: 'Yuji Syuku', 'Noto Serif JP', serif;
+            --sidebar-width: 220px;
+            --header-height: 56px;
+
+            /* 昼 */
+            --bg-day:           #f5f0e8;
+            --panel-bg-day:     #ffffff;
+            --toggle-bg-day:    #b81400;
+            --toggle-color-day: #ffffff;
+            --chip-color-day:   danger;
+
+            /* 夜 */
+            --bg-night:         #08040a;
+            --panel-bg-night:   #170d1a;
+            --toggle-bg-night:  #6b3500;
+            --toggle-color-night: #f5d090;
+        }
+
+        /* ============================================================
+           ベース
+           ============================================================ */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        .calligraphy {
+            font-family: var(--calligraphy-font) !important;
+        }
+
+        /* ============================================================
+           ion-content 背景
+           ============================================================ */
+        ion-content {
+            --background: var(--bg-day);
+        }
+        ion-app.night-mode ion-content {
+            --background: var(--bg-night);
+        }
+
+        /* ============================================================
+           検索パネル（ポートレート：sticky アコーディオン）
+           ============================================================ */
+        .search-panel {
+            background: var(--panel-bg-day);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        ion-app.night-mode .search-panel {
+            background: var(--panel-bg-night);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+        }
+
+        .search-toggle {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            background: var(--toggle-bg-day);
+            color: var(--toggle-color-day);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            user-select: none;
+            font-size: 1rem;
+        }
+        ion-app.night-mode .search-toggle {
+            background: var(--toggle-bg-night);
+            color: var(--toggle-color-night);
+        }
+
+        .search-content {
+            overflow: hidden;
+            transition: max-height 0.3s ease, padding 0.3s ease;
+        }
+        .search-content.collapsed {
+            max-height: 0;
+            padding: 0 1rem;
+        }
+        .search-content.expanded {
+            max-height: 300px;
+            padding: 0.75rem 1rem;
+        }
+
+        .search-count {
+            margin-top: 0.5rem;
+            text-align: center;
+        }
+
+        .chevron {
+            transition: transform 0.3s ease;
+            font-size: 1.2rem;
+        }
+        .chevron.rotated {
+            transform: rotate(180deg);
+        }
+
+        /* ion-item：夜モード */
+        ion-app.night-mode ion-item {
+            --background: var(--panel-bg-night);
+            --color: #e0c89a;
+            --border-color: #3a2535;
+        }
+
+        /* ============================================================
+           ページ背景コンテナ
+           ============================================================ */
+        .page-bg {
+            padding: 1rem;
+            background-color: var(--bg-day);
+            min-height: 100%;
+        }
+        .page-bg.is-night {
+            background-color: var(--bg-night);
+        }
+
+        /* ============================================================
+           ローディング / エラー
+           ============================================================ */
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: #6b4020;
+        }
+        .loading.is-night {
+            color: #c8a060;
+        }
+        .error {
+            text-align: center;
+            padding: 2rem;
+            color: #cc2200;
+        }
+        .error.is-night {
+            color: #ff6b50;
+        }
+
+        /* ============================================================
+           献灯グリッド（左 → 右）
+           ============================================================ */
+        .chochin-grid {
+            display: flex;
+            flex-flow: row wrap;
+            gap: 1.2rem;
+            justify-content: flex-start;
+        }
+
+        /* ============================================================
+           献灯カード
+           ============================================================ */
+        .chochin-card {
+            flex-shrink: 0;
+            font-family: var(--calligraphy-font);
+        }
+
+        /*
+         * .chochin-inner：提灯本体
+         *
+         * 多層 background-image を使用：
+         *   Layer 1: 実画像（存在しない場合は透明 → Layer 2/3 が見える）
+         *   Layer 2: ハイライトグラデーション（立体感）
+         *   Layer 3: 本体色グラデーション（CSS フォールバック）
+         *
+         * 実際の画像が用意できたら /kentou/images/chochin_day.png /chochin_night.png
+         * を配置するだけで自動的に適用されます。
+         */
+        .chochin-inner {
+            position: relative;
+            width: 90px;
+            height: 180px;
+
+            /* CSS フォールバック：赤い提灯（昼） */
+            background-color: #cc1800;
+            background-image:
+                url('/kentou/images/chochin_day.png'),
+                radial-gradient(ellipse 60% 45% at 28% 32%,
+                    rgba(255, 190, 150, 0.40) 0%, transparent 65%),
+                linear-gradient(180deg,
+                    #4a0000  0%,
+                    #8b0a00  7%,
+                    #be1800 20%,
+                    #e22800 33%,
+                    #cc1e00 50%,
+                    #e22800 67%,
+                    #be1800 80%,
+                    #8b0a00 93%,
+                    #4a0000 100%);
+            background-size: cover, cover, cover;
+            background-repeat: no-repeat, no-repeat, no-repeat;
+            background-position: center, center, center;
+
+            border-radius: 48% 48% 48% 48% / 12% 12% 12% 12%;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45),
+                        inset 0 0 16px rgba(0, 0, 0, 0.10);
+        }
+
+        /* 夜モード：灯り付き */
+        .chochin-inner.is-night {
+            background-color: #7a0a00;
+            background-image:
+                url('/kentou/images/chochin_night.png'),
+                radial-gradient(ellipse 50% 62% at 50% 52%,
+                    rgba(255, 148, 10, 0.82) 0%,
+                    rgba(215, 78,  0, 0.50) 42%,
+                    transparent 70%),
+                linear-gradient(180deg,
+                    #200000  0%,
+                    #4d0000  7%,
+                    #7a0a00 20%,
+                    #9c1400 33%,
+                    #8c0f00 50%,
+                    #9c1400 67%,
+                    #7a0a00 80%,
+                    #4d0000 93%,
+                    #200000 100%);
+            background-size: cover, cover, cover;
+            background-repeat: no-repeat, no-repeat, no-repeat;
+            background-position: center, center, center;
+
+            box-shadow:
+                0 0 20px  7px rgba(255, 110,  0, 0.60),
+                0 0 65px 22px rgba(200,  48,  0, 0.28),
+                0 4px 14px rgba(0, 0, 0, 0.60);
+        }
+
+        /* ============================================================
+           テキストオーバーレイ
+           ============================================================ */
+        .chochin-text-overlay {
+            position: absolute;
+            top:    13%;
+            bottom: 13%;
+            left:    6%;
+            right:   6%;
+
+            /*
+             * flex-direction: row-reverse
+             *   DOM 順: [nameRight][nameCenter][nameLeft]
+             *   表示順: nameRight(右端) → nameCenter(中) → nameLeft(左端)
+             */
+            display: flex;
+            flex-direction: row-reverse;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .chochin-right,
+        .chochin-center,
+        .chochin-left {
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            color: #ffffff;
+            text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.75),
+                         0 0 8px rgba(0, 0, 0, 0.40);
+            line-height: 1.25;
+        }
+
+        .chochin-right {
+            font-size: 0.58rem;
+            align-self: flex-start;   /* 上寄せ */
+            margin-left: 1px;
+            font-weight: 400;
+        }
+
+        .chochin-center {
+            font-size: 1rem;          /* text-len-N で上書き */
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            word-break: break-all;
+        }
+
+        .chochin-left {
+            font-size: 0.58rem;
+            align-self: flex-end;     /* 下寄せ */
+            margin-right: 1px;
+            font-weight: 400;
+        }
+
+        /* 夜：炎の光感 */
+        .chochin-inner.is-night .chochin-right,
+        .chochin-inner.is-night .chochin-center,
+        .chochin-inner.is-night .chochin-left {
+            color: #fff8e8;
+            text-shadow: 0 0 8px rgba(255, 200, 50, 0.90),
+                         1px 1px 4px rgba(0, 0, 0, 0.80);
+        }
+
+        /* ============================================================
+           画像オーバーレイ（複雑デザイン提灯）
+           ============================================================ */
+        .chochin-overlay-image {
+            position: absolute;
+            top:  12%;
+            left:  6%;
+            width:  88%;
+            height: 76%;
+            object-fit: contain;
+        }
+
+        /* ============================================================
+           文字数別フォントサイズ（花板から流用）
+           ============================================================ */
+        .text-len-1  { font-size: 150%; }
+        .text-len-2  { font-size: 150%; }
+        .text-len-3  { font-size: 130%; }
+        .text-len-4  { font-size: 120%; }
+        .text-len-5  { font-size: 100%; }
+        .text-len-6  { font-size:  85%; }
+        .text-len-7  { font-size:  80%; }
+        .text-len-8  { font-size: 100%; }
+        .text-len-9  { font-size:  90%; }
+        .text-len-12 { font-size:  70%; }
+        .text-len-15 { font-size:  65%; }
+        .text-len-18 { font-size:  65%; }
+        .text-len-21 { font-size:  65%; }
+        .text-len-24 { font-size:  65%; }
+        .text-len-27 { font-size:  65%; }
+        .text-len-30 { font-size:  60%; }
+        .text-len-33 { font-size:  60%; }
+
+        /* HACK: Safari のみに適用 */
+        _::-webkit-full-page-media, _:future, :root .chochin-center {
+            letter-spacing: 0.06em;
+            word-spacing: -0.6em;
+        }
+        @media screen and (-webkit-min-device-pixel-ratio: 0) {
+            ::i-block-chrome, .chochin-center {
+                letter-spacing: 0.06em;
+                word-spacing: -0.6em;
+            }
+        }
+
+        /* ============================================================
+           ランドスケープ スマホ → 左サイドバー
+           (orientation: landscape AND max-height: 500px)
+           ============================================================ */
+        @media (orientation: landscape) and (max-height: 500px) {
+
+            /* 検索パネルを左固定サイドバーに */
+            .search-panel {
+                position: fixed;
+                top: var(--header-height);
+                left: 0;
+                bottom: 0;
+                width: var(--sidebar-width);
+                overflow-y: auto;
+                overflow-x: hidden;
+                z-index: 200;
+                box-shadow: 3px 0 12px rgba(0, 0, 0, 0.30);
+            }
+
+            /* サイドバーモードではトグルボタン不要 */
+            .search-toggle {
+                display: none;
+            }
+
+            /* 常時展開 */
+            .search-content.collapsed,
+            .search-content.expanded {
+                max-height: none !important;
+                padding: 0.75rem !important;
+            }
+
+            /* メインコンテンツをサイドバー幅分だけ右にずらす */
+            .page-bg {
+                margin-left: var(--sidebar-width);
+            }
+        }
+
+        /* ============================================================
+           小画面微調整
+           ============================================================ */
+        @media (max-width: 400px) {
+            .chochin-inner {
+                width: 76px;
+                height: 152px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <ion-app :class="{ 'night-mode': isNight }">
+
+            <ion-header>
+                <ion-toolbar :color="isNight ? 'dark' : 'danger'">
+                    <ion-title class="calligraphy">並松町若頭 献灯御芳名</ion-title>
+                </ion-toolbar>
+            </ion-header>
+
+            <ion-content>
+
+                <!-- ================================================
+                     検索パネル
+                     ポートレート: sticky アコーディオン
+                     ランドスケープ スマホ: position fixed サイドバー
+                     ================================================ -->
+                <div class="search-panel">
+                    <div class="search-toggle" @click="toggleSearch">
+                        <span>🔍 検索・絞り込み</span>
+                        <ion-icon
+                            name="chevron-down"
+                            :class="{ chevron: true, rotated: searchExpanded }">
+                        </ion-icon>
+                    </div>
+                    <div :class="['search-content', searchExpanded ? 'expanded' : 'collapsed']">
+                        <ion-item>
+                            <ion-label position="stacked">フリーワード検索</ion-label>
+                            <ion-input
+                                :value="searchKeyword"
+                                placeholder="名称・検索ワードで絞り込み"
+                                ref="searchInput"
+                                clearInput>
+                            </ion-input>
+                        </ion-item>
+                        <div class="search-count">
+                            <ion-chip :color="isNight ? 'warning' : 'danger'">
+                                <ion-label>表示件数: {{ filteredItems.length }}</ion-label>
+                            </ion-chip>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ローディング -->
+                <div v-if="loading" class="page-bg" :class="{ 'is-night': isNight }">
+                    <div class="loading" :class="{ 'is-night': isNight }">
+                        <ion-spinner name="circular"></ion-spinner>
+                        <p>データを読み込んでいます...</p>
+                    </div>
+                </div>
+
+                <!-- エラー -->
+                <div v-else-if="error" class="page-bg" :class="{ 'is-night': isNight }">
+                    <div class="error" :class="{ 'is-night': isNight }">
+                        <p>{{ error }}</p>
+                        <ion-button @click="loadData" color="danger">再読み込み</ion-button>
+                    </div>
+                </div>
+
+                <!-- ================================================
+                     献灯グリッド
+                     ================================================ -->
+                <div v-else class="page-bg" :class="{ 'is-night': isNight }">
+                    <div class="chochin-grid">
+                        <div v-for="item in filteredItems" :key="item.id" class="chochin-card">
+                            <div class="chochin-inner" :class="{ 'is-night': isNight }">
+
+                                <!-- 画像モード（imageFile が設定されている場合） -->
+                                <img
+                                    v-if="item.imageFile"
+                                    :src="'/kentou/images/' + item.imageFile"
+                                    class="chochin-overlay-image"
+                                    :alt="item.nameCenter" />
+
+                                <!-- テキストモード -->
+                                <div v-else class="chochin-text-overlay">
+                                    <!-- 右書き: 名称の右（上寄せ） -->
+                                    <div v-if="item.nameRight" class="chochin-right">{{ item.nameRight }}</div>
+                                    <!-- 中央: メイン名称（文字数でフォントサイズ調整） -->
+                                    <div
+                                        class="chochin-center"
+                                        :class="'text-len-' + cssClassByNameLen(item.nameCenter)">
+                                        {{ item.nameCenter }}
+                                    </div>
+                                    <!-- 左書き: 補足情報（下寄せ） -->
+                                    <div v-if="item.nameLeft" class="chochin-left">{{ item.nameLeft }}</div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </ion-content>
+        </ion-app>
+    </div>
+
+    <script>
+        // ============================================================
+        // 設定
+        // ============================================================
+        const CONFIG = {
+            SPREADSHEET_ID: '1QNIQNvshg_XWVv-_q8kulo8Ylff1UOZbt-55mjMh_-U',
+            SHEET_NAME: '献灯掲載用'
+        };
+
+        // ============================================================
+        // Vue アプリ
+        // ============================================================
+        const { createApp } = Vue;
+
+        const app = createApp({
+            data() {
+                return {
+                    items: [],
+                    filteredItems: [],
+                    loading: true,
+                    error: null,
+                    searchKeyword: '',
+                    debouncedKeyword: '',
+                    debounceTimeout: null,
+                    searchExpanded: false,
+                    isNight: false
+                };
+            },
+
+            mounted() {
+                this.checkDayNight();
+
+                this.loadData().then(() => {
+                    this.refreshFilteredItems();
+                });
+
+                // Ionic カスタム要素は @ionInput などのデコレータが効かないため
+                // ネイティブ addEventListener で登録する（花板と同じ対処）
+                this.$refs.searchInput.addEventListener('ionInput', this.onSearchInput);
+            },
+
+            watch: {
+                debouncedKeyword() {
+                    this.refreshFilteredItems();
+                }
+            },
+
+            methods: {
+                // --------------------------------------------------------
+                // 昼夜判定（6:00〜18:00 = 昼）
+                // --------------------------------------------------------
+                checkDayNight() {
+                    const hour = new Date().getHours();
+                    this.isNight = hour < 6 || hour >= 18;
+                },
+
+                // --------------------------------------------------------
+                // 検索パネル
+                // --------------------------------------------------------
+                toggleSearch() {
+                    this.searchExpanded = !this.searchExpanded;
+                },
+
+                onSearchInput(event) {
+                    this.searchKeyword = event.detail.value || '';
+
+                    if (this.debounceTimeout) {
+                        clearTimeout(this.debounceTimeout);
+                    }
+                    this.debounceTimeout = setTimeout(() => {
+                        this.debouncedKeyword = this.searchKeyword;
+                    }, 300);
+                },
+
+                refreshFilteredItems() {
+                    if (!this.debouncedKeyword) {
+                        this.filteredItems = [...this.items];
+                        return;
+                    }
+                    const keyword = this.debouncedKeyword.toLowerCase();
+                    this.filteredItems = this.items.filter(item =>
+                        item.searchWords.toLowerCase().includes(keyword)
+                    );
+                },
+
+                // --------------------------------------------------------
+                // データ取得
+                // --------------------------------------------------------
+                async loadData() {
+                    this.loading = true;
+                    this.error = null;
+
+                    try {
+                        const csvUrl =
+                            `https://docs.google.com/spreadsheets/d/${CONFIG.SPREADSHEET_ID}` +
+                            `/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(CONFIG.SHEET_NAME)}`;
+
+                        const response = await fetch(csvUrl);
+                        if (!response.ok) {
+                            throw new Error(`HTTP ${response.status}`);
+                        }
+
+                        const csvText = await response.text();
+                        this.parseCsvData(csvText);
+
+                    } catch (err) {
+                        this.error = 'データの読み込みに失敗しました: ' + err.message;
+                        console.error('献灯データ取得エラー:', err);
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+
+                // --------------------------------------------------------
+                // CSV 解析
+                // --------------------------------------------------------
+                parseCsvData(csvText) {
+                    const lines = csvText.split('\n');
+                    const items = [];
+
+                    // 1行目はヘッダー行としてスキップ
+                    // ※ スプレッドシートに複数ヘッダー行がある場合は i = 2 に変更
+                    for (let i = 1; i < lines.length; i++) {
+                        const line = lines[i].trim();
+                        if (!line) continue;
+
+                        const cols = this.parseCsvLine(line);
+                        if (cols.length < 3) continue;
+
+                        // 列マッピング
+                        // [0]=No  [1]=名称(右)  [2]=名称(中央)  [3]=名称(左)  [4]=検索ワード  [5]=画像ファイル名
+                        const nameCenter = (cols[2] || '').replace(/"/g, '').trim();
+                        if (!nameCenter) continue; // 名称（中央）が空の行はスキップ
+
+                        items.push({
+                            id: i,
+                            no:          parseInt(cols[0]) || i,
+                            nameRight:   (cols[1] || '').replace(/"/g, '').trim(),
+                            nameCenter,
+                            nameLeft:    (cols[3] || '').replace(/"/g, '').trim(),
+                            searchWords: (cols[4] || '').replace(/"/g, '').trim(),
+                            imageFile:   (cols[5] || '').replace(/"/g, '').trim()
+                        });
+                    }
+
+                    // No 昇順でソート（スプレッドシートの掲載順）
+                    items.sort((a, b) => a.no - b.no);
+                    this.items = items;
+                },
+
+                // CSV 行パース（ダブルクォート対応）
+                parseCsvLine(line) {
+                    const result = [];
+                    let current = '';
+                    let inQuotes = false;
+
+                    for (let i = 0; i < line.length; i++) {
+                        const char = line[i];
+                        if (char === '"') {
+                            inQuotes = !inQuotes;
+                        } else if (char === ',' && !inQuotes) {
+                            result.push(current);
+                            current = '';
+                        } else {
+                            current += char;
+                        }
+                    }
+                    result.push(current);
+                    return result;
+                },
+
+                // --------------------------------------------------------
+                // 文字数 → CSS クラス番号（花板から流用）
+                // 1〜8 文字: そのまま使用
+                // 9 文字以上: 3 の倍数に丸める
+                // --------------------------------------------------------
+                cssClassByNameLen(name) {
+                    if (!name) return 1;
+                    return name.length >= 9
+                        ? Math.trunc(name.length / 3) * 3
+                        : name.length;
+                }
+            }
+        });
+
+        app.config.compilerOptions.isCustomElement = (tag) => tag.includes('-');
+        app.mount('#app');
+    </script>
+</body>
+</html>
