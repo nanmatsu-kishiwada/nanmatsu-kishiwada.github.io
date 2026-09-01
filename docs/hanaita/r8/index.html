@@ -127,7 +127,7 @@
                 linear-gradient(45deg, rgba(204, 51, 51, 0.05) 25%, transparent 25%); */
             background: whitre;
             /* background-image: url("/hanaita/images/ebi.png"); */
-            background-image: url("/hanaita/images/ebi2.jpg");
+            background-image: url("/hanaita/images/ebi3.png");
             background-size: contain;
             background-repeat: repeat;
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
@@ -191,6 +191,10 @@
             text-combine-upright: digits 2;
             text-align: start;
             text-align-last: end;
+            /* 文字の縁取り */
+            -webkit-text-stroke: 2px white;
+            text-stroke: 2px white;
+            paint-order: stroke;
         }
 
         /* HACK: Safari のみに適用したい CSS */
