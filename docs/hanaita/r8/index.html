@@ -17,7 +17,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>並松町若頭 御花御芳名(R8)</title>
+    <title>R8 並松町若頭 御花御芳名</title>
     
     <!-- Ionic Framework -->
     <script type="module" src="https://cdn.jsdelivr.net/npm/@ionic/core@8.7.3/dist/ionic/ionic.esm.js"></script>
@@ -314,7 +314,7 @@
         <ion-app>
             <ion-header>
                 <ion-toolbar color="primary">
-                    <ion-title>並松町若頭 御花御芳名(R8)</ion-title>
+                    <ion-title>R8 並松町若頭 御花御芳名</ion-title>
                 </ion-toolbar>
             </ion-header>
             
@@ -405,7 +405,7 @@
     <script>
         // 設定定数
         const CONFIG = {
-            SPREADSHEET_ID: 'TODO',
+            SPREADSHEET_ID: '13mSgFp-cbNa4dCSyMdPUhzF6q9Ik8BzTbFO36d_XQvI',
             SHEET_NAME: 'R8掲載用',
             CALLIGRAPHY_FONT: 'Yuji Syuku, Noto Serif JP, serif'
         };
@@ -417,7 +417,7 @@
                 return {
                     donors: [],
                     filteredDonors: [],
-                    underConstruct: true,
+                    underConstruct: false,  // 準備中にする時はここを true にする
                     loading: true,
                     error: null,
                     searchTown: '',
@@ -504,23 +504,23 @@
                     this.loading = true;
                     this.error = null;
                     
-                  //  try {
-                  //      const csvUrl = `https://docs.google.com/spreadsheets/d/${CONFIG.SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(CONFIG.SHEET_NAME)}`;
-                  //      
-                  //      const response = await fetch(csvUrl);
-                  //      if (!response.ok) {
-                  //          throw new Error('データの取得に失敗しました');
-                  //      }
-                  //      
-                  //      const csvText = await response.text();
-                  //      this.parseCsvData(csvText);
-                  //      
-                  //  } catch (err) {
-                  //      this.error = 'データの読み込みに失敗しました: ' + err.message;
-                  //      console.error('Error loading data:', err);
-                  //  } finally {
-                  //      this.loading = false;
-                  //  }
+                    try {
+                        const csvUrl = `https://docs.google.com/spreadsheets/d/${CONFIG.SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(CONFIG.SHEET_NAME)}`;
+                        
+                        const response = await fetch(csvUrl);
+                        if (!response.ok) {
+                            throw new Error('データの取得に失敗しました');
+                        }
+                        
+                        const csvText = await response.text();
+                        this.parseCsvData(csvText);
+                        
+                    } catch (err) {
+                        this.error = 'データの読み込みに失敗しました: ' + err.message;
+                        console.error('Error loading data:', err);
+                    } finally {
+                        this.loading = false;
+                    }
                 },
                 
                 parseCsvData(csvText) {
