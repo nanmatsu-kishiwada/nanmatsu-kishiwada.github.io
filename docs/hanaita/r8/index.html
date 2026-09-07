@@ -327,7 +327,9 @@
                 <div class="search-container">
                     <div class="search-toggle" @click="toggleSearch">
                         <span>🔍 検索・絞り込み</span>
-                        <ion-icon name="chevron-down" :class="{ 'chevron': true, 'rotated': searchExpanded }"></ion-icon>
+                        <span :class="{ 'chevron': true, 'rotated': searchExpanded }">
+                            <ion-icon name="chevron-down"></ion-icon>
+                        </span>
                     </div>
                     <div :class="{ 'search-content': true, 'expanded': searchExpanded, 'collapsed': !searchExpanded }">
                         <div class="search-grid">
