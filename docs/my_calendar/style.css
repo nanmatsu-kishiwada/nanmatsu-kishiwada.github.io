@@ -1,0 +1,180 @@
+/* 並松町若頭 オリジナルカレンダー作成アプリ */
+
+:root {
+    --background-color: #f5f5dc;
+    --red-accent: #cc3333;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background-color: var(--background-color);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.hidden-file-input {
+    display: none;
+}
+
+.screen {
+    min-height: 100%;
+    box-sizing: border-box;
+    padding: 1rem;
+}
+
+/* 編集画面 */
+.frame-stage-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 720px;
+    margin: 0 auto;
+    overflow: hidden;
+    touch-action: none;
+}
+
+.frame-stage {
+    position: relative;
+    transform-origin: top left;
+    touch-action: none;
+    /* width/height はJSでフレームの実寸(px)を指定し、transform:scaleで画面幅に合わせて縮小する */
+}
+
+.frame-img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    user-select: none;
+}
+
+.photo-layer {
+    position: absolute;
+    overflow: hidden;
+    background-color: #ffffff;
+    touch-action: none;
+}
+
+.photo-img {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    will-change: transform;
+    touch-action: none;
+}
+
+.upload-button {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+    padding: 0.9rem 1.6rem;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #ffffff;
+    background-color: #3880ff;
+    border: none;
+    border-radius: 999px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+    cursor: pointer;
+}
+
+.photo-controls {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.4rem;
+    margin-top: 0.8rem;
+}
+
+/* 枠切替画面 */
+.frame-select-hint {
+    text-align: center;
+    color: #555;
+    margin: 0 0 1rem;
+}
+
+.frame-list {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    padding-bottom: 2rem;
+}
+
+.frame-list-item {
+    width: 100%;
+    max-width: 600px;
+    border: 3px solid transparent;
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.frame-list-item.selected {
+    border-color: var(--red-accent);
+}
+
+.frame-list-item img {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+/* 確認画面 */
+.confirm-hint {
+    text-align: center;
+    color: #555;
+    margin: 0 0 1rem;
+}
+
+.confirm-preview-wrapper {
+    width: 100%;
+    max-width: 720px;
+    margin: 0 auto;
+    overflow: hidden;
+    touch-action: none;
+}
+
+.confirm-preview-img {
+    display: block;
+    width: 100%;
+    height: auto;
+    transform-origin: center center;
+    touch-action: none;
+}
+
+/* 完了画面 */
+.complete-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    min-height: 70vh;
+    gap: 1rem;
+}
+
+.complete-icon {
+    font-size: 4rem;
+    color: #2dd36f;
+}
+
+/* 処理中オーバーレイ */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.85);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    z-index: 1000;
+}

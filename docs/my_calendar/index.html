@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<!--
+    並松町若頭 オリジナルカレンダー作成アプリ
+    Copyright (c) 2026 nanmatsu-kishiwada. All rights reserved.
+
+    このソフトウェアおよびそのソースコードは著作権により保護されています。
+    商用・非商用を問わず、事前の書面による許可なしに、
+    このソフトウェアの一部または全部を使用、複製、改変、
+    配布することを禁じます。
+
+    This software and its source code are protected by copyright.
+    Any use, reproduction, modification, or distribution of this software,
+    in whole or in part, for commercial or non-commercial purposes,
+    is strictly prohibited without prior written permission.
+-->
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>並松町若頭 オリジナルカレンダー</title>
+
+    <!-- Ionic Framework（hanaita/r8 と同一バージョン） -->
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@ionic/core@8.7.3/dist/ionic/ionic.esm.js"></script>
+    <script nomodule src="https://cdn.jsdelivr.net/npm/@ionic/core@8.7.3/dist/ionic/ionic.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ionic/core@8.7.3/css/ionic.bundle.css" />
+
+    <!-- Vue 3（hanaita/r8 と同一バージョン） -->
+    <script src="https://unpkg.com/vue@3.5.20/dist/vue.global.js"></script>
+
+    <!-- LINE Front-end Framework SDK -->
+    <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+
+    <!-- ドラッグ・ピンチ操作（拡大縮小・回転） -->
+    <script src="https://cdn.jsdelivr.net/npm/interactjs@1.10.27/dist/interact.min.js"></script>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <ion-app>
+            <ion-header>
+                <ion-toolbar color="primary">
+                    <ion-title>{{ screenTitle }}</ion-title>
+                </ion-toolbar>
+            </ion-header>
+
+            <ion-content>
+                <!-- 編集画面 -->
+                <div v-show="currentScreen === 'edit'" class="screen edit-screen">
+                    <div class="frame-stage-wrapper" ref="frameStageWrapper">
+                        <div class="frame-stage" ref="frameStage" :style="frameStageStyle">
+                            <div class="photo-layer" ref="photoLayer" :style="cutoutStyle">
+                                <img v-if="photoUrl"
+                                     ref="photoImg"
+                                     :src="photoUrl"
+                                     class="photo-img"
+                                     draggable="false"
+                                     :style="photoTransformStyle">
+                            </div>
+                            <img :src="currentFrame.src" class="frame-img" draggable="false">
+                            <button v-if="!photoUrl" type="button" class="upload-button" @click="triggerFileInput">
+                                写真をアップロード
+                            </button>
+                        </div>
+                    </div>
+                    <!-- ピンチ操作がしづらい場合の代替手段としての手動ズーム・回転ボタン -->
+                    <div v-if="photoUrl" class="photo-controls">
+                        <ion-button size="small" fill="outline" @click="adjustZoom(-0.1)">－ズーム</ion-button>
+                        <ion-button size="small" fill="outline" @click="adjustZoom(0.1)">＋ズーム</ion-button>
+                        <ion-button size="small" fill="outline" @click="adjustRotate(-15)">⟲回転</ion-button>
+                        <ion-button size="small" fill="outline" @click="adjustRotate(15)">⟳回転</ion-button>
+                        <ion-button size="small" fill="outline" @click="resetPhotoTransform">リセット</ion-button>
+                    </div>
+                    <input type="file" accept="image/*" ref="fileInput" class="hidden-file-input" @change="onPhotoSelected">
+                </div>
+
+                <!-- 枠切替画面 -->
+                <div v-show="currentScreen === 'frameSelect'" class="screen frame-select-screen">
+                    <p class="frame-select-hint">枠をタップして選択してください</p>
+                    <div class="frame-list">
+                        <div v-for="(frame, idx) in frames"
+                             :key="frame.id"
+                             class="frame-list-item"
+                             :class="{ selected: idx === selectedFrameIndex }"
+                             @click="selectFrame(idx)">
+                            <img :src="frame.src" :alt="frame.name">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 確認画面 -->
+                <div v-show="currentScreen === 'confirm'" class="screen confirm-screen">
+                    <p class="confirm-hint">ピンチ操作で拡大して仕上がりを確認できます（位置調整は前の画面で行ってください）</p>
+                    <div class="confirm-preview-wrapper" ref="confirmPreviewWrapper">
+                        <img v-if="previewCompositeUrl"
+                             ref="confirmPreviewImg"
+                             :src="previewCompositeUrl"
+                             class="confirm-preview-img"
+                             draggable="false"
+                             :style="confirmZoomStyle">
+                    </div>
+                </div>
+
+                <!-- 完了画面 -->
+                <div v-show="currentScreen === 'complete'" class="screen complete-screen">
+                    <ion-icon name="checkmark-circle" class="complete-icon"></ion-icon>
+                    <p>ありがとうございました。<br>担当者が確認して、連絡いたします。</p>
+                    <ion-button @click="onCloseTapped" color="primary">閉じる</ion-button>
+                </div>
+
+                <!-- 処理中オーバーレイ -->
+                <div v-if="processing" class="loading-overlay">
+                    <ion-spinner></ion-spinner>
+                    <p>{{ processingMessage }}</p>
+                </div>
+            </ion-content>
+
+            <ion-footer v-show="currentScreen === 'edit'">
+                <ion-toolbar>
+                    <ion-buttons slot="start">
+                        <ion-button @click="goToFrameSelect">枠を切替</ion-button>
+                    </ion-buttons>
+                    <ion-buttons slot="end">
+                        <ion-button @click="goToConfirm" :disabled="!photoUrl">次へ</ion-button>
+                    </ion-buttons>
+                </ion-toolbar>
+            </ion-footer>
+
+            <ion-footer v-show="currentScreen === 'confirm'">
+                <ion-toolbar>
+                    <ion-buttons slot="start">
+                        <ion-button @click="backToEdit">戻る</ion-button>
+                    </ion-buttons>
+                    <ion-buttons slot="end">
+                        <ion-button @click="onOrderTapped" color="danger">注文する</ion-button>
+                    </ion-buttons>
+                </ion-toolbar>
+            </ion-footer>
+        </ion-app>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
