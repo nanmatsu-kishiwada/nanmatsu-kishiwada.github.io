@@ -311,6 +311,82 @@
                 grid-template-columns: 1fr;
             }
         }
+        
+        /* スライドショー */
+        .slideshow-overlay {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            /* ヘッダー+検索トグルバーの高さ分を差し引いた概算値 */
+            min-height: calc(100vh - 160px);
+            overflow: hidden;
+            background-color: #222;
+        }
+        
+        .slideshow-grid {
+            transform-origin: center center;
+        }
+        
+        .slide-nav-btn {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            z-index: 600;
+        }
+        
+        .slide-nav-btn.left {
+            left: 16px;
+        }
+        
+        .slide-nav-btn.right {
+            right: 16px;
+        }
+        
+        .slide-next-enter-active,
+        .slide-next-leave-active,
+        .slide-prev-enter-active,
+        .slide-prev-leave-active {
+            transition: transform 0.4s ease, opacity 0.4s ease;
+        }
+        
+        .slide-next-enter-from {
+            transform: translateX(-100%);
+            opacity: 0;
+        }
+        
+        .slide-next-leave-to {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        
+        .slide-prev-enter-from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        
+        .slide-prev-leave-to {
+            transform: translateX(-100%);
+            opacity: 0;
+        }
+        
+        @media (max-width: 480px) {
+            .slide-nav-btn {
+                width: 44px;
+                height: 44px;
+                font-size: 1.2rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -325,13 +401,13 @@
             <ion-content>
                 <!-- 検索フォーム（アコーディオン） -->
                 <div class="search-container">
-                    <div class="search-toggle" @click="toggleSearch">
-                        <span>🔍 検索・絞り込み</span>
-                        <span :class="{ 'chevron': true, 'rotated': searchExpanded }">
+                    <div class="search-toggle" @click="onToggleBarClick">
+                        <span>{{ slideshowMode ? 'スライドショーを終了' : '🔍 検索・絞り込み' }}</span>
+                        <span v-if="!slideshowMode" :class="{ 'chevron': true, 'rotated': searchExpanded }">
                             <ion-icon name="chevron-down"></ion-icon>
                         </span>
                     </div>
-                    <div :class="{ 'search-content': true, 'expanded': searchExpanded, 'collapsed': !searchExpanded }">
+                    <div v-show="!slideshowMode" :class="{ 'search-content': true, 'expanded': searchExpanded, 'collapsed': !searchExpanded }">
                         <div class="search-grid">
                             <ion-item>
                                 <ion-label position="stacked">町名で絞り込み</ion-label>
@@ -356,10 +432,13 @@
                             <ion-label position="stacked">フリーワード検索</ion-label>
                             <ion-input :value="searchKeyword" placeholder="名前や町名で検索" ref="searchInput"></ion-input>
                         </ion-item>
-                        <div style="margin-top: 0.5rem; text-align: center;">
+                        <div style="margin-top: 0.5rem; display: flex; align-items: center; justify-content: space-between;">
                             <ion-chip color="primary">
                                 <ion-label>表示件数: {{ filteredDonors.length }}</ion-label>
                             </ion-chip>
+                            <ion-button size="small" color="primary" :disabled="filteredDonors.length === 0" @click="startSlideshow">
+                                <i class="fa-solid fa-play" style="margin-right: 0.3rem;"></i>スライドショー
+                            </ion-button>
                         </div>
                     </div>
                 </div>
@@ -379,6 +458,36 @@
                 <div v-else-if="error" class="error">
                     <p>{{ error }}</p>
                     <ion-button @click="loadData" color="primary">再読み込み</ion-button>
+                </div>
+                
+                <!-- スライドショー表示 -->
+                <div v-else-if="slideshowMode" class="slideshow-overlay" ref="slideshowOverlay">
+                    <div class="slide-nav-btn left" @click="nextSlide">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </div>
+                    <div class="slideshow-grid" :style="{ transform: 'scale(' + slideshowScale + ')' }">
+                        <transition :name="slideDirection === 'next' ? 'slide-next' : 'slide-prev'" mode="out-in" @after-enter="updateSlideshowScale">
+                            <div :key="currentSlideDonor.id" ref="slideshowCardEl" class="hanshi-card"
+                                 @click="openUrl(currentSlideDonor.url)"
+                                 :data-clickable="!!currentSlideDonor.url">
+                                <div class="town-name">{{ currentSlideDonor.townName }}</div>
+                                <div class="name-container">
+                                    <div class="amount">{{ currentSlideDonor.amountKanji }}</div>
+                                    <div v-if="currentSlideDonor.position" class="position-title">{{ currentSlideDonor.position }}</div>
+                                    <div class="person-name" :class="'text-len-' + cssClassByNameLen(currentSlideDonor.name)">{{ currentSlideDonor.name }}</div>
+                                </div>
+                                <div class="dono">殿</div>
+                                <div class="link-container" v-if="currentSlideDonor.url">
+                                    <a :href="currentSlideDonor.url" target="_blank">
+                                        <i class="fa-solid fa-up-right-from-square"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </transition>
+                    </div>
+                    <div class="slide-nav-btn right" @click="prevSlide">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </div>
                 </div>
                 
                 <!-- 花板表示 -->
@@ -431,10 +540,18 @@
                     searchKeyword: '',
                     debouncedKeyword: '',
                     debounceTimeout: null,
-                    searchExpanded: false
+                    searchExpanded: false,
+                    slideshowMode: false,
+                    slideIndex: 0,
+                    slideDirection: 'next',
+                    slideTimer: null,
+                    slideshowScale: 1
                 };
             },
             computed: {
+                currentSlideDonor() {
+                    return this.filteredDonors[this.slideIndex] || {};
+                },
                 uniqueTowns() {
                     const towns = [...new Set(this.donors.map(donor => donor.townName))];
                     return towns.sort((a, b) => {
@@ -462,6 +579,10 @@
                 this.$refs.searchAmountSelect.addEventListener('ionChange', this.onAmountChange);
                 this.$refs.searchInput.addEventListener('ionInput', this.onSearchInput);
             },
+            unmounted() {
+                this.stopAutoTimer();
+                window.removeEventListener('resize', this.updateSlideshowScale);
+            },
             watch: {
                 searchTown(newValue) {
                     this.refreshFilteredDonors();
@@ -476,6 +597,73 @@
             methods: {
                 toggleSearch() {
                     this.searchExpanded = !this.searchExpanded;
+                },
+                
+                onToggleBarClick() {
+                    if (this.slideshowMode) {
+                        this.exitSlideshow();
+                    } else {
+                        this.toggleSearch();
+                    }
+                },
+                
+                startSlideshow() {
+                    if (!this.filteredDonors.length) return;
+                    this.slideshowMode = true;
+                    this.slideIndex = 0;
+                    this.slideDirection = 'next';
+                    this.startAutoTimer();
+                    window.addEventListener('resize', this.updateSlideshowScale);
+                    this.$nextTick(this.updateSlideshowScale);
+                },
+                
+                exitSlideshow() {
+                    this.slideshowMode = false;
+                    this.stopAutoTimer();
+                    window.removeEventListener('resize', this.updateSlideshowScale);
+                },
+                
+                startAutoTimer() {
+                    this.stopAutoTimer();
+                    this.slideTimer = setInterval(() => this.nextSlide(), 3000);
+                },
+                
+                stopAutoTimer() {
+                    if (this.slideTimer) {
+                        clearInterval(this.slideTimer);
+                        this.slideTimer = null;
+                    }
+                },
+                
+                nextSlide() {
+                    if (!this.filteredDonors.length) return;
+                    this.slideDirection = 'next';
+                    this.slideIndex = (this.slideIndex + 1) % this.filteredDonors.length;
+                    this.startAutoTimer();
+                },
+                
+                prevSlide() {
+                    if (!this.filteredDonors.length) return;
+                    this.slideDirection = 'prev';
+                    this.slideIndex = (this.slideIndex - 1 + this.filteredDonors.length) % this.filteredDonors.length;
+                    this.startAutoTimer();
+                },
+                
+                // hanshi-cardの実測サイズ(transformの影響を受けないoffsetサイズ)を基に、親領域の7割に収まる拡大率を算出
+                updateSlideshowScale() {
+                    const cardEl = this.$refs.slideshowCardEl;
+                    const overlayEl = this.$refs.slideshowOverlay;
+                    if (!cardEl || !overlayEl) return;
+                    
+                    const naturalWidth = cardEl.offsetWidth;
+                    const naturalHeight = cardEl.offsetHeight;
+                    if (!naturalWidth || !naturalHeight) return;
+                    
+                    const availableWidth = overlayEl.clientWidth * 0.7;
+                    const availableHeight = overlayEl.clientHeight * 0.7;
+                    
+                    const scale = Math.min(availableWidth / naturalWidth, availableHeight / naturalHeight);
+                    this.slideshowScale = scale > 0 ? scale : 1;
                 },
                 
                 openUrl(url) {
