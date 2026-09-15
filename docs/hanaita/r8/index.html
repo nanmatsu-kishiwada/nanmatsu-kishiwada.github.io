@@ -195,6 +195,7 @@
             -webkit-text-stroke: 2px white;
             text-stroke: 2px white;
             paint-order: stroke;
+            transform: scaleX(1.6);
         }
 
         /* HACK: Safari のみに適用したい CSS */
@@ -210,55 +211,68 @@
         }
 
         .text-len-1 {
-            font-size: 150%;
+            font-size: 200%;
         }
         .text-len-2 {
-            font-size: 150%;
+            font-size: 160%;
         }
         .text-len-3 {
             font-size: 130%;
         } 
         .text-len-4 {
-            font-size: 120%;
+            font-size: 118%;
         } 
         .text-len-5 {
-            font-size: 100%;
+            font-size: 96%;
         } 
         .text-len-6 {
-            font-size: 85%;
+            font-size: 78%;
         } 
         .text-len-7 {
-            font-size: 80%;
+            font-size: 75%;
         } 
         .text-len-8 {
             font-size: 100%;
         } 
         .text-len-9 {
-            font-size: 90%;
+            font-size: 95%;
+        } 
+        .text-len-10 {
+            font-size: 80%;
+        } 
+        .text-len-11 {
+            font-size: 75%;
         } 
         .text-len-12 {
             font-size: 70%;
         } 
         .text-len-15 {
             font-size: 65%;
+            line-height: 1.2em;
         } 
         .text-len-18 {
             font-size: 65%;
+            line-height: 1.2em;
         } 
         .text-len-21 {
             font-size: 65%;
+            line-height: 1.2em;
         } 
         .text-len-24 {
             font-size: 65%;
+            line-height: 1.2em;
         } 
         .text-len-27 {
             font-size: 65%;
+            line-height: 1.2em;
         } 
         .text-len-30 {
             font-size: 60%;
+            line-height: 1.2em;
         } 
         .text-len-33 {
             font-size: 60%;
+            line-height: 1.2em;
         } 
 
         .amount {
@@ -784,7 +798,7 @@
                 },
                 
                 cssClassByNameLen(name) {
-                    return name.length >= 9 ? Math.trunc(name.length/3)*3 : name.length;
+                    return name.length >= 12 ? Math.trunc(name.length/3)*3 : name.length;
                 },
 
                 parseAmount(amountStr) {
