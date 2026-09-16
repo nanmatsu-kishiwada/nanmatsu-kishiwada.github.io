@@ -868,19 +868,7 @@
 
                 sortDonors(donors) {
                     return donors.sort((a, b) => {
-                        // 1. 金額の高い順
-                        if (a.amount !== b.amount) {
-                            return b.amount - a.amount;
-                        }
-                        
-                        // 2. エリア区分の順
-                        const aCategory = this.getAreaCategory(a.townName);
-                        const bCategory = this.getAreaCategory(b.townName);
-                        if (aCategory !== bCategory) {
-                            return aCategory - bCategory;
-                        }
-                        
-                        // 3. 花板表示順の指定順
+                        // 花板表示順の指定順
                         if (a.displayOrder !== null && b.displayOrder !== null) {
                             if (a.displayOrder !== b.displayOrder) {
                                 return a.displayOrder - b.displayOrder;
@@ -890,8 +878,20 @@
                         } else if (b.displayOrder !== null) {
                             return 1;
                         }
+
+                        // 金額の高い順
+                        if (a.amount !== b.amount) {
+                            return b.amount - a.amount;
+                        }
                         
-                        // 4. 町名順（文字コード順）
+                        // エリア区分の順
+                        const aCategory = this.getAreaCategory(a.townName);
+                        const bCategory = this.getAreaCategory(b.townName);
+                        if (aCategory !== bCategory) {
+                            return aCategory - bCategory;
+                        }
+                        
+                        // 町名順（文字コード順）
                         return a.townName.localeCompare(b.townName);
                     });
                 }
