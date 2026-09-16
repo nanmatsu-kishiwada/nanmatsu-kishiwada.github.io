@@ -833,11 +833,37 @@
                 },
                 
                 getAreaCategory(townName) {
-                    if (townName === '並松町') return 0; // 最優先
-                    if (townName.endsWith('町')) return 1;
-                    if (townName.endsWith('市')) return 2;
-                    if (townName.match(/[都道府県]$/)) return 3;
-                    return 4; // その他
+                    // 指定順の町名リスト（優先度順）
+                    const priorityTowns = [
+                        '並松町', '港緑町', '岸野町', '下野町', '沼町',
+                        '上野町西', '上野町東', '筋海町', '藤井町', '別所町',
+                        '北町', '大北町', '中北町', '中之濱町', '五軒屋町',
+                        '魚屋町', '堺町', '本町', '中町', '大手町',
+                        '紙屋町', '大工町', '宮本町', '上町', '南町', '南上町',
+                        '野田町', '加守町', '岸の丘町',
+                        '春木泉町', '春木南浜町', '春木北浜町', '春木本町', '春木大小路町',
+                        '春木中町', '春木宮川町', '松風町', '戎町', '八幡町', '春木若松町', '春木旭町',
+                        '磯上町', '木材町', 
+                        '土生町', '西之内町'
+                    ];
+                    const priorityIndex = priorityTowns.indexOf(townName);
+                    if (priorityIndex !== -1) return priorityIndex;
+
+                    // 指定順の市区分リスト（「町」で終わるものも含むため、他の「町」判定より先に照合する）
+                    const priorityCities = [
+                        '貝塚市', '忠岡町', '泉大津市', '和泉市', '泉佐野市',
+                        '田尻町', '熊取町', '泉南市', '阪南市', '岬町',
+                        '高石市', '堺市', '大阪市'
+                    ];
+                    const base = priorityTowns.length + 1;
+                    const cityIndex = priorityCities.indexOf(townName);
+                    if (cityIndex !== -1) return base + cityIndex;
+
+                    const base2 = base + priorityCities.length;
+                    if (townName.endsWith('町')) return base - 1;
+                    if (townName.endsWith('市')) return base2 + 1;
+                    if (townName.match(/[都道府県]$/)) return base2 + 2;
+                    return base2 + 3; // その他
                 },
                 
                 refreshFilteredDonors() {
